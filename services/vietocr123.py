@@ -19,7 +19,28 @@ def init_vietocr():
     return Predictor(config)
 
 def init_PaddleOCR():
-    return PaddleOCR(use_textline_orientation=False, lang='vi')
+    ocr = PaddleOCR(
+        # language + version
+        lang="vi",                 # hoặc "latin" (vi ∈ nhóm latin trong code nguồn)
+        ocr_version="PP-OCRv5",    # "PP-OCRv5" / "PP-OCRv4" / "PP-OCRv3"
+
+        # TẮT các module tiền xử lý để đỡ nặng
+        use_doc_orientation_classify=False,  # không xoay toàn trang
+        use_doc_unwarping=False,            # không làm phẳng giấy
+        use_textline_orientation=False,     # không xoay từng dòng
+
+        # Tham số detection (mapping từ det_* cũ sang text_det_*)
+        text_det_limit_side_len=960,  # giống det_limit_side_len
+        text_det_limit_type="max",    # giống det_limit_type: "min"/"max"
+        text_det_thresh=0.3,          # giống det_db_thresh
+        text_det_box_thresh=0.6,      # giống det_db_box_thresh
+        text_det_unclip_ratio=1.5,    # giống det_db_unclip_ratio
+
+        # Thiết bị – trên Mac M2 thường dùng CPU
+        device="cpu",                 # "cpu" hoặc "gpu:0" nếu anh build được GPU
+        # enable_hpi=True,           # nếu muốn bật high performance inference
+    )
+    return ocr
 
 vietocr = init_vietocr()
 paddle_detector = init_PaddleOCR()
@@ -38,7 +59,7 @@ paddle_detector = init_PaddleOCR()
 
 
 
-def get_text_boxes_and_image(page_pil, detector: PaddleOCR):
+def get_text_boxes_and_image(page_pil, detector: PaddleOCR,padding=4):
     """
     Detection từ 1 trang (PIL Image) bằng PaddleOCR.
     Return:
@@ -46,42 +67,46 @@ def get_text_boxes_and_image(page_pil, detector: PaddleOCR):
       boxes: list[(x_min, y_min, x_max, y_max)]
     """
     img_cv = cv2.cvtColor(np.array(page_pil), cv2.COLOR_RGB2BGR)
-    result = detector.ocr(img_cv)
+    results = detector.predict(img_cv,
+        use_doc_orientation_classify=False,
+        use_doc_unwarping=False,
+        use_textline_orientation=False)
 
-    if not result:
+    if not results:
         return img_cv, []
 
-    page_result = result[0]  
+    res = results[0]
+
+    # Lấy polygon từ detection (ưu tiên dt_polys)
+    polys = res.get("dt_polys")
+    if polys is None:
+        # fallback: dùng rec_polys nếu vì lý do nào đó dt_polys ko có
+        polys = res.get("rec_polys")
+
+    if polys is None:
+        return img_cv, []
+
+    h, w = img_cv.shape[:2]
     boxes = []
-    def _poly_to_box(poly):
-        arr = np.array(poly)
-        if arr.ndim != 2 or arr.shape[0] == 0:
-            return None
-        x_min = int(np.min(arr[:, 0]))
-        y_min = int(np.min(arr[:, 1]))
-        x_max = int(np.max(arr[:, 0]))
-        y_max = int(np.max(arr[:, 1]))
-        return x_min, y_min, x_max, y_max
 
-    if isinstance(page_result, dict):
-        polygons = page_result.get("dt_polys") or page_result.get("rec_polys") or []
-        for poly in polygons:
-            box = _poly_to_box(poly)
-            if box:
-                boxes.append(box)
-    else:
-        for line in page_result:
-            if not line or not isinstance(line, (list, tuple)) or len(line) < 1:
-                continue
-            poly = line[0]
-            box = _poly_to_box(poly)
-            if box:
-                boxes.append(box)
+    for poly in polys:
+        # poly shape: (4, 2) hoặc (N, 2), mỗi phần tử [x, y]
+        xs = [int(p[0]) for p in poly]
+        ys = [int(p[1]) for p in poly]
 
-    # Sort gần đúng theo dòng đọc: top-to-bottom, left-to-right
-    boxes_sorted = sorted(boxes, key=lambda b: (b[1], b[0]))
+        x_min = max(0, min(xs) - padding)
+        x_max = min(w - 1, max(xs) + padding)
+        y_min = max(0, min(ys) - padding)
+        y_max = min(h - 1, max(ys) + padding)
 
-    return img_cv, boxes_sorted
+        # Lọc bớt box siêu nhỏ (nhiễu)
+        if x_max - x_min > 5 and y_max - y_min > 5:
+            boxes.append((x_min, y_min, x_max, y_max))
+
+    # Sắp xếp box theo thứ tự đọc: trên xuống, trái sang phải
+    boxes.sort(key=lambda b: (b[1], b[0]))
+
+    return img_cv, boxes
 
 def recognize_boxes_with_vietocr(img_cv, boxes, recognizer: Predictor):
     """
@@ -102,7 +127,7 @@ def recognize_boxes_with_vietocr(img_cv, boxes, recognizer: Predictor):
         pil_crop = Image.fromarray(crop_rgb)
 
         #Save image crop for debug
-        pil_crop.save(f"debug_crop_{x_min}_{y_min}_{x_max}_{y_max}.png")
+        # pil_crop.save(f"debug_crop_{x_min}_{y_min}_{x_max}_{y_max}.png")
 
         # Gọi VietOCR
         text = recognizer.predict(pil_crop)
@@ -228,7 +253,7 @@ if __name__ == "__main__":
     ocr_pdf_paddle_vietocr(
         pdf_input="./data/file_minio/27135926-0898-12c8-0a0b-3a100476f984_16-20.pdf",
         output_txt="output_paddle_vietocr.txt",
-        dpi=300,
+        dpi=200,
         use_bytes=False,
         device=None  
     )
