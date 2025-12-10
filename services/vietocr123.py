@@ -20,9 +20,8 @@ def init_vietocr():
 
 def init_PaddleOCR():
     ocr = PaddleOCR(
-        # language + version
-        lang="vi",                 # hoặc "latin" (vi ∈ nhóm latin trong code nguồn)
-        ocr_version="PP-OCRv5",    # "PP-OCRv5" / "PP-OCRv4" / "PP-OCRv3"
+        lang="vi",                 
+        ocr_version="PP-OCRv5",    
 
         # TẮT các module tiền xử lý để đỡ nặng
         use_doc_orientation_classify=False,  # không xoay toàn trang
@@ -35,29 +34,13 @@ def init_PaddleOCR():
         text_det_thresh=0.3,          # giống det_db_thresh
         text_det_box_thresh=0.6,      # giống det_db_box_thresh
         text_det_unclip_ratio=1.5,    # giống det_db_unclip_ratio
-
         # Thiết bị – trên Mac M2 thường dùng CPU
         device="cpu",                 # "cpu" hoặc "gpu:0" nếu anh build được GPU
-        # enable_hpi=True,           # nếu muốn bật high performance inference
     )
     return ocr
 
 vietocr = init_vietocr()
 paddle_detector = init_PaddleOCR()
-
-# def pdf_to_images(pdf_input, dpi=300, use_bytes=False):
-#     """
-#     pdf_input: path (str) hoặc bytes (nếu use_bytes=True)
-#     return: list[ PIL.Image ]
-#     """
-#     poppler_path = "/opt/homebrew/bin"
-#     if use_bytes:
-#         pages = convert_from_bytes(pdf_input, dpi=dpi,poppler_path=poppler_path)
-#     else:
-#         pages = convert_from_path(pdf_input, dpi=dpi, poppler_path=poppler_path)
-#     return pages
-
-
 
 def get_text_boxes_and_image(page_pil, detector: PaddleOCR,padding=4):
     """
@@ -162,9 +145,11 @@ def iter_pdf_pages(pdf_path, dpi=200, poppler_path=None):
             images = convert_from_path(
                 pdf_path,
                 dpi=dpi,
-                first_page=page_number,
-                last_page=page_number,
+                first_page=3,
+
+                last_page=3,
             )
+            images[0].save(f"debug_page_{page_number}.png")    
             # convert_from_path với 1 trang -> images có 1 phần tử
             yield page_number, images[0]
     elif sys.platform == "darwin":
@@ -185,15 +170,13 @@ def iter_pdf_pages(pdf_path, dpi=200, poppler_path=None):
     else:
         print(f"Running on another OS: {sys.platform}")
 
-    
 
 def ocr_pdf_paddle_vietocr(
-    pdf_input,
+    pdf_path: str,
     output_txt="output.txt",
     dpi=200,
     use_bytes=False,
-      poppler_path="/opt/homebrew/bin",
-    device=None
+    poppler_path="/opt/homebrew/bin",
 ):
     """
     pdf_input: path str hoặc bytes (nếu use_bytes=True)
@@ -251,9 +234,8 @@ if __name__ == "__main__":
     # text = sliding_window_ocr_pdf(pathFile)
     # print(text)
     ocr_pdf_paddle_vietocr(
-        pdf_input="./data/file_minio/27135926-0898-12c8-0a0b-3a100476f984_16-20.pdf",
+        pdf_path="./data/file_minio/27135926-0898-12c8-0a0b-3a100476f984_16-20.pdf",
         output_txt="output_paddle_vietocr.txt",
-        dpi=200,
+        dpi=300,
         use_bytes=False,
-        device=None  
     )
