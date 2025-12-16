@@ -19,6 +19,9 @@ def creat_collection(client):
         vectors_config=vectors_config
     )
 
+# Insert embedding to Qdrant
+
+# Search embedding in Qdrant
 
 if __name__=="__main__":
     creat_collection(client)

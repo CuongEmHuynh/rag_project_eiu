@@ -170,7 +170,6 @@ def iter_pdf_pages(pdf_path, dpi=200, poppler_path=None):
     else:
         print(f"Running on another OS: {sys.platform}")
 
-
 def ocr_pdf_paddle_vietocr(
     pdf_path: str,
     output_txt="output.txt",
