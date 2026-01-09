@@ -10,11 +10,14 @@ import os
 from pdf2image.pdf2image import pdfinfo_from_path
 import gc 
 import sys
+import csv
+from pathlib import Path
+
 
 def init_vietocr():
     config = Cfg.load_config_from_name('vgg_transformer')
     config['device'] = 'cpu'
-    config['cnn']['pretrained'] = True
+    config['cnn']['pretrained'] = False
     config['predictor']['beamsearch'] = True
     return Predictor(config)
 
@@ -181,30 +184,6 @@ def ocr_pdf_paddle_vietocr(
     pdf_input: path str hoặc bytes (nếu use_bytes=True)
     output_txt: đường dẫn file .txt xuất ra
     """
-    # 1. Convert PDF -> list ảnh
-    # pages = pdf_to_images(pdf_input, dpi=dpi, use_bytes=use_bytes)
-    # print(f"Tổng số trang: {len(pages)}")
-
-    # 2. Khởi tạo model
-    detector = paddle_detector  # dùng global đã tạo ở trên
-    recognizer = vietocr
-
-    all_pages_text = []
-
-    # 3. OCR từng trang
-    # for i, page in iter_pdf_pages(pdf_path, dpi=dpi, poppler_path=poppler_path):
-    #     print(f"OCR trang {i+1}/{len(pages)} ...")
-    #     page_text = ocr_page_paddle_vietocr(page, detector, recognizer)
-
-    #     # Thêm header trang để dễ debug
-    #     page_block = f"===== PAGE {i+1} =====\n{page_text}\n"
-    #     all_pages_text.append(page_block)
-
-    # # 4. Ghi ra file .txt
-    # with open(output_txt, "w", encoding="utf-8") as f:
-    #     for block in all_pages_text:
-    #         f.write(block)
-    #         f.write("\n")
     
     with open(output_txt, "w", encoding="utf-8") as f_out:
         for page_number, page_pil in iter_pdf_pages(pdf_path, dpi=dpi, poppler_path=poppler_path):
@@ -216,25 +195,62 @@ def ocr_pdf_paddle_vietocr(
                 recognizer=vietocr
             )
 
-            f_out.write(f"===== PAGE {page_number} =====\n")
+            # f_out.write(f"===== PAGE {page_number} =====\n")
             f_out.write(page_text)
-            f_out.write("\n\n")
+            f_out.write("\n")
 
             # Giải phóng biến cục bộ & thu gom rác
             del page_pil, page_text
             gc.collect()
 
-
     print(f"Hoàn thành. Đã lưu vào: {os.path.abspath(output_txt)}")
 
+def read_pdf_and_process_files(
+    csv_file: str = "data/documents.csv",
+    output_dir: str = "data/file_contents"
+):
+    csv_path = Path(csv_file)
+    if not csv_path.exists():
+        raise FileNotFoundError(f"Không tìm thấy file CSV: {csv_path}")
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
+    
+    total = success = 0
+    with csv_path.open("r", encoding="utf-8", newline="") as csv_handle:
+        reader = csv.DictReader(csv_handle)
+        for idx, row in enumerate(reader, start=1):
+
+            total += 1
+            pathfile= f"./data/file_minio/{row['FileNameMinio']}"
+            file_output = f"{output_path}/{row['Id']}.txt"
+            try:
+                print(f"[{idx}] Processing file...")
+                ocr_pdf_paddle_vietocr(
+                    pdf_path=pathfile,
+                    output_txt=file_output,
+                    dpi=200,
+                    use_bytes=False,
+                )
+                success += 1
+            except Exception as e:
+                print(f"Error processing {pathfile}: {e}")
+         
+            
+    
+    
+
 if __name__ == "__main__":
+    print("OCR data....")
+    read_pdf_and_process_files(csv_file= "./data/documents.csv", output_dir="./data/file_contents")
+    
+    
     # Ví dụ sử dụng
-    pdf_path= "./data/file_minio/27135926-0898-12c8-0a0b-3a100476f984_16-20.pdf"
+    # pdf_path= "./data/file_minio/27135926-0898-12c8-0a0b-3a100476f984_16-20.pdf"
     # text = sliding_window_ocr_pdf(pathFile)
     # print(text)
-    ocr_pdf_paddle_vietocr(
-        pdf_path="./data/file_minio/27135926-0898-12c8-0a0b-3a100476f984_16-20.pdf",
-        output_txt="output_paddle_vietocr.txt",
-        dpi=300,
-        use_bytes=False,
-    )
+    # ocr_pdf_paddle_vietocr(
+    #     pdf_path="./data/file_minio/27135926-0898-12c8-0a0b-3a100476f984_16-20.pdf",
+    #     output_txt="output_paddle_vietocr.txt",
+    #     dpi=300,
+    #     use_bytes=False,
+    # )

@@ -4,9 +4,10 @@ __pycache__/
 *$py.class
 .env
 config/
-data/file_minio/ocr_pages
+data/
 # C extensions
 *.so
+
 
 # Distribution / packaging
 .Python
