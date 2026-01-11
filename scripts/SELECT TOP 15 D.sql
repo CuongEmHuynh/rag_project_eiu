@@ -14,7 +14,7 @@ SELECT TOP 15 D.Id, KeyFileId, [Page], D.[No], Author, Summary, D.Column1 as 'Da
     LEFT JOIN TableOfContents T ON R.TableOfContentId=T.Id
     LEFT JOIN DocumentBlocks DB ON T.DocumentBlockId=DB.Id
     LEFT JOIN Organizations O ON DB.OrganizationId=O.Id
-    where   D.Id='2e29ec6e-4e1a-d430-b0aa-3a18b9689c74'
+    where   D.Id in ('2e29ec6e-4e1a-d430-b0aa-3a18b9689c74', '2D487D1D-987E-428E-8B7D-3A18B9689C75','B684632F-E7E8-AE1F-A874-3A18B9689C7A')
 
     --- Id Test--
     -- DocumentID:2e29ec6e-4e1a-d430-b0aa-3a18b9689c74
