@@ -1,0 +1,14 @@
+Extract Person and Event from the following text.
+
+Rules:
+- Person = real person mentioned in text.
+- Event = decision, disciplinary action, or reward.
+- Event MUST be a node, not a verb.
+- Use only these relations:
+  MENTIONS, DESCRIBES, APPLIES_TO
+- Return ONLY JSON.
+
+Text:
+"""
+{SUMMARY_TEXT}
+"""

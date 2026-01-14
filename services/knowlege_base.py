@@ -12,6 +12,7 @@ driver = GraphDatabase.driver(
     auth=(NEO4J_USER, NEO4J_PASSWORD)
 )
 
+# Viết toàn bộ đồ thị cho một document với các quan hệ đầy đủ
 def write_full_graph(tx, d):
     tx.run("""
     // Organization
@@ -59,6 +60,7 @@ def write_full_graph(tx, d):
     """, **d)
 
 
+# Case test 1: Viết một document đơn giản với các quan hệ cơ bản
 def write_document(tx, doc):
     tx.run("""
     MERGE (d:Document {id: $doc_id})
@@ -96,7 +98,6 @@ def write_document(tx, doc):
 
         "author": doc["org_meta"]["author"]
     })
-
 
 
 def build_document_objects(df: pd.DataFrame):
@@ -141,6 +142,8 @@ def build_document_objects(df: pd.DataFrame):
             "org_name": r["Author"]
         })
     return docs
+
+
 
 def main():
     CSV_PATH= "data/query_data1.csv"
