@@ -56,6 +56,7 @@ MAX_NEW_TOKENS = int(os.getenv("MAX_NEW_TOKENS", "256"))
 NEO4J_URI = "bolt://222.255.214.30:7687"
 NEO4J_USER = "neo4j"
 NEO4J_PASSWORD = "StrongPassword123!"
+openai_api_key = os.getenv('OPENAI_API_KEY')
 
 
 driver = GraphDatabase.driver(
@@ -67,7 +68,7 @@ driver = GraphDatabase.driver(
 
 
 #  -----Use your OpenAI API key ---
-# llm = ChatOpenAI(model="gpt-4o-mini", temperature=0,api_key="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")
+# llm = ChatOpenAI(model="gpt-4o-mini", temperature=0,api_key=openai_api_key)
 
 # llm = ChatOllama(model="qwen2.5:7b-instruct", temperature=0)
 # def extract_semantic_kg(text: str) -> dict:
