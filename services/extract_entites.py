@@ -50,8 +50,8 @@ Văn bản:
 {TEXT}
 \"\"\"
 """
-MODEL_ID = os.getenv("HF_MODEL_ID", "Qwen/Qwen2.5-3B-Instruct")
-MAX_INPUT_TOKENS = int(os.getenv("MAX_INPUT_TOKENS", "4096"))
+MODEL_ID = os.getenv("HF_MODEL_ID", "Qwen/Qwen2.5-1.5B-Instruct")
+MAX_INPUT_TOKENS = int(os.getenv("MAX_INPUT_TOKENS", "512"))
 MAX_NEW_TOKENS = int(os.getenv("MAX_NEW_TOKENS", "256"))
 NEO4J_URI = "bolt://222.255.214.30:7687"
 NEO4J_USER = "neo4j"
@@ -69,7 +69,6 @@ driver = GraphDatabase.driver(
 #  -----Use your OpenAI API key ---
 # llm = ChatOpenAI(model="gpt-4o-mini", temperature=0,api_key="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")
 
-# ---- Use OLLama
 # llm = ChatOllama(model="qwen2.5:7b-instruct", temperature=0)
 # def extract_semantic_kg(text: str) -> dict:
 #     print("Extracting semantic KG...")
@@ -91,21 +90,10 @@ driver = GraphDatabase.driver(
 #     return json.loads(response.content)
 
 
-def _resolve_device() -> str:
-    # env_device = os.getenv("LLM_DEVICE")
-    # if env_device:
-    #     return env_device
-    # if torch.cuda.is_available():
-    #     return "cuda"
-    # if torch.backends.mps.is_available():
-    #     return "mps"
-    return "cpu"
-
-
 @lru_cache(maxsize=1)
 def _load_qwen():
     tokenizer = AutoTokenizer.from_pretrained(MODEL_ID)
-    device = _resolve_device()
+    device = "cpu"
     if device in ("cuda", "mps"):
         dtype = torch.float16
     else:
@@ -140,17 +128,20 @@ def extract_semantic_kg_Qwen(text: str) -> dict:
             max_new_tokens=MAX_NEW_TOKENS,
             do_sample=False,
             pad_token_id=tokenizer.eos_token_id,
+            temperature=0.0,
         )
     out_text = tokenizer.decode(
         outputs[0][inputs["input_ids"].shape[-1]:],
         skip_special_tokens=True
     )
     print("Model output:", out_text)
+    print("Type of out_text:", type(out_text))
     # Nếu model có thêm text, cắt JSON ra trước khi json.loads
     match = re.search(r"\{.*\}", out_text, re.S)
     if not match:
         raise ValueError("Model output does not contain JSON")
-    return json.loads(out_text)
+    json_text = match.group(0).strip()
+    return json.loads(json_text)
 
 def validate_kg(kg: dict):
     """
@@ -275,20 +266,19 @@ def main():
     
     print("Building document objects...")
     documents = build_document_objects(df)
-    for doc in documents:
-        kg = extract_semantic_kg_Qwen(doc["doc_summary"])
-        validate_kg(kg)
-        print(f"Writing KG for document {doc['doc_id']}...")
-        print(kg)
-    # kg = extract_semantic_kg(sample_text)
-    # validate_kg(kg)
-
-    # with driver.session() as session:
-    #     doc_id = "doc_001"
-    #     session.write_transaction(write_semantic_graph, doc_id, kg)
+    with driver.session() as session:
+        for doc in documents:
+            kg = extract_semantic_kg_Qwen(doc["doc_summary"])
+            validate_kg(kg)
+            print(f"Document ID: {doc['doc_id']}")
+            session.execute_write(
+            write_semantic_graph,
+            doc["doc_id"],
+            kg)
+    
+    print("Inserting documents extract done.")    
 
 if __name__ == "__main__":
-    # print("Starting entity extraction...")
     main()
 
     
