@@ -67,7 +67,7 @@ Event.type chỉ được chọn từ:
 Trả về JSON theo schema (KHÔNG thêm trường khác):
 {{
   "persons": [{{"name": "..." }}],
-  "events": [{{"type": "...", "description": "..." }}]
+  "events": [{{"type": "...", "description": "...","applies_to": "Tên Person tương ứng" }}]
 }}
 
 Văn bản:
@@ -258,6 +258,57 @@ def write_semantic_graph_new(tx, doc_id: str, kg: dict):
         MATCH (e:Event {id:$eid}), (p:Person {id:$pid})
         MERGE (e)-[:APPLIES_TO]->(p)
         """, eid=event_ids[0], pid=person_ids[0])
+        
+def write_semantic_graph_v3(tx, doc_id: str, kg: dict):
+    # --- 1. Tạo Person nodes ---
+    person_id_map = {}  # name -> pid
+
+    for p in kg.get("persons", []):
+        pid = normalize_id("person", p["name"])
+        person_id_map[p["name"]] = pid
+
+        tx.run("""
+        MERGE (p:Person {id:$pid})
+        SET p.name = $name
+        """, pid=pid, name=p["name"])
+
+        tx.run("""
+        MATCH (d:Document {id:$doc_id}), (p:Person {id:$pid})
+        MERGE (d)-[:MENTIONS]->(p)
+        """, doc_id=doc_id, pid=pid)
+
+    # --- 2. Tạo Event-per-Person ---
+    for e in kg.get("events", []):
+        person_name = e.get("applies_to")
+
+        # An toàn: event phải chỉ rõ person
+        if person_name not in person_id_map:
+            continue
+
+        pid = person_id_map[person_name]
+
+        # 🔑 EVENT GRANULARITY FIX (CỐT LÕI)
+        eid = normalize_id(
+            "event",
+            f"{e['type']}_{person_name}"
+        )
+
+        tx.run("""
+        MERGE (e:Event {id:$eid})
+        SET e.type = $type,
+            e.description = $desc
+        """, eid=eid, type=e["type"], desc=e["description"])
+
+        tx.run("""
+        MATCH (d:Document {id:$doc_id}), (e:Event {id:$eid})
+        MERGE (d)-[:DESCRIBES]->(e)
+        """, doc_id=doc_id, eid=eid)
+
+        tx.run("""
+        MATCH (e:Event {id:$eid}), (p:Person {id:$pid})
+        MERGE (e)-[:APPLIES_TO]->(p)
+        """, eid=eid, pid=pid)
+        
 
 
 def build_document_objects(df: pd.DataFrame):
@@ -316,7 +367,7 @@ def main():
             validate_kg(kg)
             print(f"Document ID: {doc['doc_id']}")
             session.execute_write(
-            write_semantic_graph_new,
+            write_semantic_graph_v3,
             doc["doc_id"],
             kg)
     

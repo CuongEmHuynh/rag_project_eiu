@@ -12,10 +12,10 @@ from qdrant_client.models import Filter, FieldCondition, MatchAny
 
 # Qdrant Config
 SERVERQDRANT="http://222.255.214.30:6333"
-COLLECTION_NAME="rag_document_v1"
+COLLECTION_NAME="rag_document_v2"
 MODEL_EMBEDDING="bkai-foundation-models/vietnamese-bi-encoder"
 OCR_DIR = Path("./data/file_contents")
-CSV_PATH = "./data/documents.csv"   
+CSV_PATH = "./data/query_data2.csv"   
     
 SECTION_RE = re.compile(
     r"(?m)^(?:Chương\s+[IVXLC]+|Mục\s+\d+|Điều\s+\d+)\s*[:\.]?",
@@ -176,13 +176,26 @@ def build_embedding_text(chunk_text: str) -> str:
     return chunk_text.strip()
 
 
+def _normalize_object_name(file_path: str, file_name: str) -> str:
+    """Build MinIO object path from CSV columns."""
+    file_path = (file_path or "").strip()
+    file_name = (file_name or "").strip()
+
+    if file_path:
+        normalized = file_path.rstrip("/")
+        if file_name and not normalized.endswith(file_name):
+            normalized = f"{normalized}/{file_name}"
+        return normalized.lstrip("/")
+
+    return file_name.lstrip("/").lower()
+
 def load_and_index(csv_path: str):
     with open(csv_path, "r", encoding="utf-8") as f:
         reader = csv.DictReader(f)
 
         for doc_idx, row in enumerate(reader, start=1):
             doc_id = row["Id"]
-            ocr_file = OCR_DIR / f"{doc_id}.txt"
+            ocr_file = OCR_DIR / f"{doc_id.upper()}.txt"
 
             if not ocr_file.exists():
                 print(f"[SKIP] OCR not found for {doc_id}")
@@ -195,6 +208,12 @@ def load_and_index(csv_path: str):
             chunks = chunk_legal_document_v2(clean_text)
 
             points = []
+            
+            object_column = "FilePathMinio"
+            file_name_column = "FileNameMinio"
+            file_path = row.get(object_column) or row.get(object_column.lower())
+            file_name = row.get(file_name_column) or row.get(file_name_column.lower())
+            object_name = _normalize_object_name(file_path, file_name.lower())
 
             for i, chunk in enumerate(chunks):
                 vector = model.encode(
@@ -212,6 +231,7 @@ def load_and_index(csv_path: str):
                     "author": row["Author"],
                     "date": row["DateDocument"],
                     "summary": row["Summary"],
+                    "file_url":object_name,
                     "chunk_index": i,
                     "chunk_text": chunk,
                     "source": "OCR"
@@ -257,21 +277,20 @@ def embedding_search(query: str, top_k: int = 5):
 
 
 if __name__ == "__main__":
-    # creat_collection(client)
-
+    creat_collection(client)
     # # Index dữ liệu
-    # load_and_index(CSV_PATH)
+    load_and_index(CSV_PATH)
     print("Indexing completed.")
 
-    # Test search
+    # # Test search
    
-    results = embedding_search(
-        "Các quyết định của sinh viên Phạm Văn Giang",
-        top_k=5
+    # results = embedding_search(
+    #     "Các quyết định của sinh viên Phạm Văn Giang",
+    #     top_k=5
         
-    )
+    # )
 
-    for r in results:
-        print("-" * 80)
-        print("Score:", round(r.score, 4))
-        print("Điều:", r.payload["chunk_text"])
+    # for r in results:
+    #     print("-" * 80)
+    #     print("Score:", round(r.score, 4))
+    #     print("Điều:", r.payload["chunk_text"])

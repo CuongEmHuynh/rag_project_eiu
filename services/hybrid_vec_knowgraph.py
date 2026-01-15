@@ -16,9 +16,8 @@ driver = GraphDatabase.driver(
 
 # Qdrant config 
 SERVERQDRANT="http://222.255.214.30:6333"
-COLLECTION_NAME="rag_document_v1"
+COLLECTION_NAME="rag_document_v2"
 MODEL_EMBEDDING="bkai-foundation-models/vietnamese-bi-encoder"
-COLLECTION_NAME="rag_document_v1"
 qdrant= QdrantClient(url=SERVERQDRANT)
 model = SentenceTransformer(
     MODEL_EMBEDDING
@@ -89,6 +88,14 @@ def graph_query_person_event(driver, person_name: str, event_type: str):
     <-[:DESCRIBES]-(d:Document)
     RETURN DISTINCT d.id AS doc_id
     """
+    
+    # query = """
+    #     MATCH (d:Document)-[:DESCRIBES]->(e:Event {type:$type})
+    #     MATCH (e)-[:APPLIES_TO]->(p:Person {name:$name})
+    #     WITH d, e, collect(p) AS persons
+    #     WHERE size(persons) = 1
+    #     RETURN DISTINCT d.id AS doc_id
+    # """
     with driver.session() as session:
         return [r["doc_id"] for r in session.run(
             query, name=person_name, type=event_type
@@ -137,7 +144,7 @@ def graph_retrieve_documents(driver, question: str):
 
 # ===== Qdrant Vector Search =====
 def vector_search_filtered(qdrant, collection, query_vector, allowed_doc_ids, limit=5):
-    print(allowed_doc_ids)
+    print(allowed_doc_ids )
     flt = Filter(
         must=[FieldCondition(key="doc_id", match=MatchAny(any=allowed_doc_ids))]
     )
@@ -147,6 +154,8 @@ def vector_search_filtered(qdrant, collection, query_vector, allowed_doc_ids, li
         query_filter=flt,
         limit=limit
     ).points
+    
+    
 def hybrid_retrieve(
     question: str,
     driver,
@@ -163,7 +172,7 @@ def hybrid_retrieve(
 
     # (3) Vector search
     if allowed_doc_ids:
-        allowed_doc_ids= [doc_id.upper() for doc_id in allowed_doc_ids]
+        allowed_doc_ids= [doc_id.lower() for doc_id in allowed_doc_ids]
         hits = vector_search_filtered(
             qdrant, collection, qvec, allowed_doc_ids, limit=top_k
         )
@@ -176,20 +185,35 @@ def hybrid_retrieve(
     return hits
 
 
+def sort_hits_in_order(hits):
+    return sorted(
+        hits,
+        key=lambda h: (
+            h.payload.get("doc_id"),
+            int(h.payload.get("chunk_index", 0))
+        )
+    )
+
 def build_context(hits):
     blocks = []
+    hits = sort_hits_in_order(hits)
     for h in hits:
         blocks.append(
-            f"- (doc_id={h.payload['doc_id']}) {h.payload['chunk_text']}\n"
-            f"  File: {h.payload.get('file_path','')}"
+            f"{h.payload['chunk_text']}"
+        )
+        
+    blocks.append(
+            f"File_URL: {h.payload.get('file_url','')}"
         )
     return "\n".join(blocks)
+
+
 
 
 if __name__=="__main__":
     print("Hybriad Vec Knowgraph Service")
 
-    question = "Các quyết định của sinh viên Lương Quân Vương"
+    question = "Các quyết định của sinh viên Tô Thị Ngọc Thiện"
     hits = hybrid_retrieve(
         question,
         driver=driver,
