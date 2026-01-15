@@ -1,0 +1,10 @@
+ANSWER_PROMPT = """
+Bạn chỉ được trả lời dựa trên CONTEXT dưới đây.
+Nếu không đủ thông tin, hãy nói "Không tìm thấy tài liệu phù hợp".
+
+CONTEXT:
+{context}
+
+CÂU HỎI:
+{question}
+"""

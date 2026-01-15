@@ -7,6 +7,7 @@ import uuid
 from pathlib import Path
 from qdrant_client.models import PointStruct
 from sentence_transformers import SentenceTransformer
+from qdrant_client.models import Filter, FieldCondition, MatchAny
 
 
 # Qdrant Config
@@ -242,10 +243,14 @@ def creat_collection(client):
     )
 
 def embedding_search(query: str, top_k: int = 5):
+    flt = Filter(
+        must=[FieldCondition(key="doc_id", match=MatchAny(any=['ef0359f7-e2a8-b9fc-4844-3a18b9689c78']))]
+    )
     query_vector = model.encode(query, normalize_embeddings=True)
     search_result = client.query_points(
         collection_name=COLLECTION_NAME,
         query=query_vector,
+        query_filter=flt,
         limit=top_k
     )
     return search_result.points
@@ -259,9 +264,11 @@ if __name__ == "__main__":
     print("Indexing completed.")
 
     # Test search
+   
     results = embedding_search(
-        "Quyết định rút môn học của sinh viên Phạm Thị Thanh Hòa",
+        "Các quyết định của sinh viên Phạm Văn Giang",
         top_k=5
+        
     )
 
     for r in results:

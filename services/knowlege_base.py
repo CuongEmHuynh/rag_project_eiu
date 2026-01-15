@@ -146,7 +146,7 @@ def build_document_objects(df: pd.DataFrame):
 
 
 def main():
-    CSV_PATH= "data/query_data1.csv"
+    CSV_PATH= "data/query_data2.csv"
     df = pd.read_csv(CSV_PATH)
     
     print("Building document objects...")
