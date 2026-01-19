@@ -479,6 +479,49 @@ def step3_detect_pipeline(
         }
     }
 
+
+
+
+#====== Step 4 Crop Box ===== 
+import cv2
+import numpy as np
+
+def order_points_clockwise(pts: np.ndarray) -> np.ndarray:
+    # pts: (4,2)
+    s = pts.sum(axis=1)
+    diff = np.diff(pts, axis=1).reshape(-1)
+
+    tl = pts[np.argmin(s)]
+    br = pts[np.argmax(s)]
+    tr = pts[np.argmin(diff)]
+    bl = pts[np.argmax(diff)]
+    return np.array([tl, tr, br, bl], dtype=np.float32)
+
+def crop_polygon_warp(img_bgr: np.ndarray, poly4: np.ndarray, pad: int = 3) -> np.ndarray:
+    pts = order_points_clockwise(poly4.astype(np.float32))
+
+    wA = np.linalg.norm(pts[2] - pts[3])
+    wB = np.linalg.norm(pts[1] - pts[0])
+    hA = np.linalg.norm(pts[1] - pts[2])
+    hB = np.linalg.norm(pts[0] - pts[3])
+
+    W = int(max(wA, wB)) + pad * 2
+    H = int(max(hA, hB)) + pad * 2
+    W = max(W, 10); H = max(H, 10)
+
+    dst = np.array([[pad, pad], [W - pad, pad], [W - pad, H - pad], [pad, H - pad]], dtype=np.float32)
+    M = cv2.getPerspectiveTransform(pts, dst)
+    crop = cv2.warpPerspective(img_bgr, M, (W, H), flags=cv2.INTER_CUBIC)
+    return crop
+
+
+def preprocess_crop_for_rec(crop_bgr: np.ndarray) -> np.ndarray:
+    gray = cv2.cvtColor(crop_bgr, cv2.COLOR_BGR2GRAY)
+    clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
+    gray = clahe.apply(gray)
+    # không threshold quá mạnh vì dễ mất dấu tiếng Việt
+    return gray
+
 # ========= main ========
 if __name__=="__main__":
     print("This is evulationOCR.py")
@@ -503,3 +546,4 @@ if __name__=="__main__":
     filter_cfg=dict(min_w=25, min_h=12, max_h=260, min_area=250, min_aspect=1.1),
     line_tol=18
 )
+    print(f"Detected {len(out['ordered_boxes'])} text boxes on page 1.")
