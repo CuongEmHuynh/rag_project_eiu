@@ -6,6 +6,12 @@ import cv2
 from pathlib import Path
 from paddleocr import PaddleOCR
 from typing import List, Tuple, Dict, Any, Optional
+import re
+import unicodedata
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from models.ocr_libs import vietocr_recognize,paddle_recognize,easyocr_recognize,tesseract_recognize
 
 PDF_PATH = "data/file_minio/27135926-0898-12c8-0a0b-3a100476f984_16-20.pdf"
 OUT_DIR = Path("out")
@@ -131,7 +137,7 @@ def preprocess(img_bgr):
     if np.mean(bin_img) < 127:
         bin_img = 255 - bin_img
 
-    return bin_img, angle
+    return bin_img, angle, img_bgr
 
 
 
@@ -480,8 +486,6 @@ def step3_detect_pipeline(
     }
 
 
-
-
 #====== Step 4 Crop Box ===== 
 import cv2
 import numpy as np
@@ -522,23 +526,95 @@ def preprocess_crop_for_rec(crop_bgr: np.ndarray) -> np.ndarray:
     # không threshold quá mạnh vì dễ mất dấu tiếng Việt
     return gray
 
+
+VN_CHAR_RE = re.compile(r"[A-Za-zÀ-ỹà-ỹĐđ0-9]")
+
+def normalize_vi(s: str) -> str:
+    s = unicodedata.normalize("NFC", s)
+    s = re.sub(r"\s+", " ", s).strip()
+    return s
+
+def quality_score(s: str) -> float:
+    if not s:
+        return 0.0
+    valid = len(VN_CHAR_RE.findall(s))
+    return valid / max(1, len(s))
+
+def recognize_ensemble(crop_bgr: np.ndarray):
+    # preprocess (nhẹ)
+    gray = preprocess_crop_for_rec(crop_bgr)
+
+    # # 1) VietOCR
+    # vtxt = normalize_vi(vietocr_recognize(gray))
+    # vq = quality_score(vtxt)
+    # if vq >= 0.60 and len(vtxt) >= 2:
+    #     return vtxt, {"model": "vietocr", "score": vq}
+
+    # # 2) PaddleOCR rec
+    # ptxt, pscore = paddle_recognize(crop_bgr)
+    # ptxt = normalize_vi(ptxt)
+    # pq = max(pscore, quality_score(ptxt))
+   
+    # if pq >= 0.60 and len(ptxt) >= 2:
+    #     return ptxt, {"model": "paddleocr_rec", "score": pq}
+
+    # 3) EasyOCR
+    etxt, escore = easyocr_recognize(crop_bgr)
+    etxt = normalize_vi(etxt)
+    eq = max(escore, quality_score(etxt))
+    return etxt, {"model": "easyocr", "score": eq}
+    # if eq >= 0.60 and len(etxt) >= 3:
+    #     return etxt, {"model": "easyocr", "score": eq}
+
+    # 4) Tesseract
+    # ttxt = normalize_vi(tesseract_recognize(gray))
+    # tq = quality_score(ttxt)
+    # return ttxt, {"model": "tesseract", "score": tq}
+
+
+def step4_recognize_boxes(img_bgr: np.ndarray, ordered_boxes, pad: int = 3):
+    results = []
+    for i, poly in enumerate(ordered_boxes):
+        crop = crop_polygon_warp(img_bgr, poly, pad=pad)
+        cv2.imwrite(str(OUT_DIR / f"page_{i+1:03d}_box.png"), crop)
+        try:
+            if i==36:
+                print("debug")
+            text, meta = recognize_ensemble(crop)
+        except Exception as e:
+            print(f"Error recognizing box {i}: {e}")
+
+        text, meta = recognize_ensemble(crop)
+        results.append({
+            "id": i,
+            "poly": poly.tolist(),
+            "text": text,
+            "model": meta["model"],
+            "score": float(meta["score"]),
+        })
+    return results
+
+
 # ========= main ========
 if __name__=="__main__":
     print("This is evulationOCR.py")
     # Render PDF to images
     pages = render_pdf_to_images(PDF_PATH, dpi=350)
     bin_pages = []
+    clean_pages = []
     for i, img in enumerate(pages):
-        bin_img, angle = preprocess(img)
+        bin_img, angle, img_bgr = preprocess(img)
         bin_pages.append(bin_img)
+        clean_pages.append(img_bgr)
         cv2.imwrite(str(OUT_DIR / f"page_{i+1:03d}_bin.png"), bin_img)
+        cv2.imwrite(str(OUT_DIR / f"page_{i+1:03d}_clean.png"), img_bgr)
     
     print("Preprocessing done.")
     print(bin_pages[0].shape)
     # Detect text regions and draw boxes
     # boxs = step3_detect_regions(bin_pages[0], debug_dir="debug", page_id=1)
     out = step3_detect_pipeline(
-        img_bgr=bin_pages[0],
+    img_bgr=bin_pages[0],
     ocr_det=ocr_det,
     page_id=1,
     debug_dir="debug",
@@ -547,3 +623,7 @@ if __name__=="__main__":
     line_tol=18
 )
     print(f"Detected {len(out['ordered_boxes'])} text boxes on page 1.")
+    ocr_result =  step4_recognize_boxes(clean_pages[0], out['ordered_boxes'], pad=3)
+    import json
+    with open(str(OUT_DIR / "page_001_ocr_results.json"), "w", encoding="utf-8") as f:
+        json.dump(ocr_result, f, ensure_ascii=False, indent=2)
