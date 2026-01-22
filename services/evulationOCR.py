@@ -547,14 +547,16 @@ def recognize_ensemble(crop_bgr: np.ndarray):
     # # 1) VietOCR
     # vtxt = normalize_vi(vietocr_recognize(gray))
     # vq = quality_score(vtxt)
+    # return vtxt, {"model": "vietocr", "score": vq}
     # if vq >= 0.60 and len(vtxt) >= 2:
     #     return vtxt, {"model": "vietocr", "score": vq}
+
 
     # # 2) PaddleOCR rec
     # ptxt, pscore = paddle_recognize(crop_bgr)
     # ptxt = normalize_vi(ptxt)
     # pq = max(pscore, quality_score(ptxt))
-   
+    # return ptxt, {"model": "paddleocr_rec", "score": pq}
     # if pq >= 0.60 and len(ptxt) >= 2:
     #     return ptxt, {"model": "paddleocr_rec", "score": pq}
 
@@ -576,10 +578,8 @@ def step4_recognize_boxes(img_bgr: np.ndarray, ordered_boxes, pad: int = 3):
     results = []
     for i, poly in enumerate(ordered_boxes):
         crop = crop_polygon_warp(img_bgr, poly, pad=pad)
-        cv2.imwrite(str(OUT_DIR / f"page_{i+1:03d}_box.png"), crop)
+        # cv2.imwrite(str(OUT_DIR / f"page_{i+1:03d}_box.png"), crop)
         try:
-            if i==36:
-                print("debug")
             text, meta = recognize_ensemble(crop)
         except Exception as e:
             print(f"Error recognizing box {i}: {e}")
@@ -606,8 +606,8 @@ if __name__=="__main__":
         bin_img, angle, img_bgr = preprocess(img)
         bin_pages.append(bin_img)
         clean_pages.append(img_bgr)
-        cv2.imwrite(str(OUT_DIR / f"page_{i+1:03d}_bin.png"), bin_img)
-        cv2.imwrite(str(OUT_DIR / f"page_{i+1:03d}_clean.png"), img_bgr)
+        # cv2.imwrite(str(OUT_DIR / f"page_{i+1:03d}_bin.png"), bin_img)
+        # cv2.imwrite(str(OUT_DIR / f"page_{i+1:03d}_clean.png"), img_bgr)
     
     print("Preprocessing done.")
     print(bin_pages[0].shape)
@@ -625,5 +625,5 @@ if __name__=="__main__":
     print(f"Detected {len(out['ordered_boxes'])} text boxes on page 1.")
     ocr_result =  step4_recognize_boxes(clean_pages[0], out['ordered_boxes'], pad=3)
     import json
-    with open(str(OUT_DIR / "page_001_ocr_results.json"), "w", encoding="utf-8") as f:
+    with open(str(OUT_DIR / "page_001_Esayocr_results.json"), "w", encoding="utf-8") as f:
         json.dump(ocr_result, f, ensure_ascii=False, indent=2)

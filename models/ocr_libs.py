@@ -40,8 +40,9 @@ ocr_rec = PaddleOCR(
     ocr_version="PP-OCRv5",    
     device="cpu",   
     cpu_threads=8, 
-    use_angle_cls=False,  
-    text_recognition_model_name="PP-OCRv5_server_rec",      # Không detect
+    use_doc_orientation_classify=False,
+    use_doc_unwarping=False,
+    use_textline_orientation=False,      # Không detect
 )
 
 def paddle_recognize(crop_bgr: np.ndarray):
