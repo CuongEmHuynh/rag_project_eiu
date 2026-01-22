@@ -51,13 +51,7 @@ def render_pdf_to_images(pdf_path: str, dpi: int = 300):
     return images
 
 
-
-
-import cv2
-import numpy as np
-
 def estimate_skew_angle(gray):
-    # tìm hướng chữ bằng Hough line trên edge
     edges = cv2.Canny(gray, 50, 150)
     lines = cv2.HoughLinesP(edges, 1, np.pi/180, threshold=200,
                             minLineLength=gray.shape[1]//3, maxLineGap=20)
@@ -120,9 +114,6 @@ def preprocess(img_bgr):
     red_mask = build_red_mask(img_bgr, dilate_iter=2)
     img_bgr = remove_red_by_inpaint(img_bgr, red_mask)
 
-
-   
-
     # denoise nhẹ để giữ nét dấu tiếng Việt
     gray = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2GRAY)
     gray = cv2.bilateralFilter(gray, d=7, sigmaColor=50, sigmaSpace=50)
@@ -138,9 +129,6 @@ def preprocess(img_bgr):
         bin_img = 255 - bin_img
 
     return bin_img, angle, img_bgr
-
-
-
 
 ### ======= Bước 3 Detect và nhận dạng ký tự (OCR) ======== 
 def box_bbox(pts: np.ndarray) -> Tuple[float, float, float, float]:

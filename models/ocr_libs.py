@@ -5,14 +5,10 @@ from vietocr.tool.config import Cfg
 from PIL import Image
 import cv2
 import numpy as np
-
 from paddleocr import PaddleOCR
-
-
 import easyocr
 import pytesseract
-import re
-import unicodedata
+
 
 
 #==== VietOCR ====#
@@ -72,3 +68,5 @@ def tesseract_recognize(gray_or_bgr: np.ndarray) -> str:
         gray = gray_or_bgr
     config = r'--oem 1 --psm 6 -l vie'
     return pytesseract.image_to_string(gray, config=config).strip()
+
+
