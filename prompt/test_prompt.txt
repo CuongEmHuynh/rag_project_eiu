@@ -1,0 +1,55 @@
+
+Bạn là trợ lý trả lời dựa trên bằng chứng.
+
+QUY TẮC BẮT BUỘC:
+- CHỈ sử dụng thông tin trong CONTEXT.
+- KHÔNG suy đoán.
+- KHÔNG bổ sung kiến thức bên ngoài.
+- Mỗi ý chính PHẢI kèm trích dẫn [DOC_ID].
+- Nếu không đủ bằng chứng, hãy trả lời:
+  "Không tìm thấy tài liệu phù hợp."
+
+MỨC ĐỘ TIN CẬY:
+Kết luận dựa trên quan hệ nghiệp vụ đã xác thực.
+
+CONTEXT:
+BỘ GIÁO DỤC VÀ ĐÀO TẠO
+Độc lập ? Tự do ? Hạnh phúc
+Số: 15./QĐ-ĐHQTMĐ-ĐT/2016
+Bình Dương, ngày 18. tháng 1. năm 2016
+QUYẾT ĐỊNH
+V/v cho sinh viên rút môn học và nhận điểm W
+- Căn cứ Quyết định số 1789/QĐ-TTg ngày 27/9/2010 của Thủ tướng chính phủ về việc
+- Căn cứ Quyết định số 01/QĐ-ĐHQTMĐ-HĐQT ngày 06 tháng 10 năm 2010 của Hội
+tế Miền Đông về việc ban hành ?Quy chế đào tạo theo học chế tín chi-bậc đại học hệ
+chính quy tập trung?;
+- Căn cứ vào Đơn xin rút môn học và nhận điểm W của sinh viên Tô Thị Ngọc Thiện
+ngày 31/12/2015;
+- Căn cứ vào Tờ trình số.40.40./TTr-ĐHQTMĐ-ĐT/2016 ngày 12 tháng.01.năm 2016
+của Phòng Đào tạo trình Ban Giám Hiệu;
+- Theo đề nghị của Phòng Đào tạo,
+QUYẾT ĐỊNH
+Điều 1: Đồng ý theo đơn xin của sinh viên Tô Thị Ngọc Thiện, MSSV: 1331210062, ngành
+Truyền thông và mạng máy tính, Khoa Kỹ thuật được rút môn học và nhận điểm W môn Đồ
+án Truyền thông và mạng máy tính (CSE 320).
+Điều 2: Sinh viên có tên ở điều 1 phải đóng 30% học phí môn Đồ án Truyền thông và mạng
+máy tính (CSE 320) (149.010 VNĐ) khi rút môn học và nhận điểm W. Môn học sinh' viên
+nhận điểm W sẽ không được tính điểm trung bình học kỳ và điểm trung bình tích lũy. Điều 3: Các Ông (Bà) Trưởng Phòng Đào tạo, Trưởng Khoa Kỹ thuật, các đơn vị liên quan
+và sinh viên có tên trên chịu trách nhiệm thi hành quyết định này
+Điều 4: Quyết định này có hiệu lực kể từ học kỳ 2 năm học 2015 ? 2016.
+HIỆU TRƯỞNG
+Nơi nhận
+- C ác phòng ban của EIU (để thi hành);
+TRƯỜNG
+K hoa Kỹ thuật (để thi hành);
+ĐẠI HỌC
+- SV Tô Thị Ngọc Thiện;
+QUỐC TẾ
+Lưu: PĐT, TTL
+MIẾN ĐÔNG
+TS. Nguyễn Văn Phúc
+Quỳnh (ĐT)
+File_URL: host/EIU/HC2016/da27be9f-4a5c-5116-a579-3a18b957aa40_1/HC2016.01/bb6d8626-99bf-b478-4b38-3a18b96a7d76_57.pdf
+
+CÂU HỎI:
+Các quyết định của sinh viên Tô Thị Ngọc Thiện

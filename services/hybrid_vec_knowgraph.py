@@ -321,7 +321,7 @@ def answer_with_qwen_3b(
         prompt,
         return_tensors="pt",
         truncation=True,
-        max_length=4096
+        max_length=512
     ).to(device)
 
     with torch.inference_mode():
@@ -366,7 +366,7 @@ def step5_answer_pipeline(
         context=context,
         question=question
     )
-
+    # return prompt
     # 5. Generate answer
     return answer_with_qwen_3b(
         tokenizer, model, device, prompt
@@ -386,10 +386,9 @@ if __name__=="__main__":
         collection=COLLECTION_NAME,
         top_k=5
     )
+    print("Retrieved Hits:", hits)
     test1 = build_context1(hits)
-    print("CONTEXT:")
     print(test1)
-    
     
     # print(f"Retrieved {len(hits)} hits.")
     # result = step5_answer_pipeline(
@@ -397,7 +396,6 @@ if __name__=="__main__":
     #     hits=hits,
     #     confidence_level="STRICT"
     # )
-    
     # print("ANSWER:")
     # print(result)
 

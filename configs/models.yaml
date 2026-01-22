@@ -1,0 +1,11 @@
+models:
+  - name: Llama3.2_3b_instruct_frog
+    hf_id: phamhai/Llama-3.2-3B-Instruct-Frog
+  - name: qwen25_3b_instruct
+    hf_id: Qwen/Qwen2.5-3B-Instruct
+  - name: vinallama_27b
+    hf_id: vilm/vinallama-2.7b
+  - name: Vi-Qwen2-1.5B-RAG
+    hf_id: AITeamVN/Vi-Qwen2-1.5B-RAG
+  - name: vi-gemma-2b-RAG
+    hf_id: ricepaper/vi-gemma-2b-RAG
