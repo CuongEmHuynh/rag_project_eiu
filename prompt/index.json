@@ -1,0 +1,22 @@
+[
+  {
+    "model": "Qwen/Qwen2.5-3B-Instruct",
+    "file": "qwen_qwen2_5_3b_instruct.json"
+  },
+  {
+    "model": "mistralai/Ministral-3-3B-Instruct-2512",
+    "file": "mistralai_ministral_3_3b_instruct_2512.json"
+  },
+  {
+    "model": "meta-llama/Llama-3.2-3B-Instruct",
+    "file": "meta_llama_llama_3_2_3b_instruct.json"
+  },
+  {
+    "model": "arcee-ai/Arcee-VyLinh",
+    "file": "arcee_ai_arcee_vylinh.json"
+  },
+  {
+    "model": "sail/Sailor-1.8B",
+    "file": "sail_sailor_1_8b.json"
+  }
+]
