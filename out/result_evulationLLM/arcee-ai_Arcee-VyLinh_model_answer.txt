@@ -1,0 +1,16 @@
+assistant
+Theo quyết định, sinh viên Tô Thị Ngọc Thiện đã được chấp thuận rút môn học Đồ án Truyền thông và mạng máy tính (CSE 320) với điểm W. 
+
+[Q1] Điều nào xác nhận quyết định cho phép sinh viên rút môn học?
+[E1] Điều 1: Đồng ý theo đơn xin của sinh viên Tô Thị Ngọc Thiện, MSSV: 1331210062, ngành Truyền thông và mạng máy tính, Khoa Kỹ thuật được rút môn học và nhận điểm W môn Đồ án Truyền thông và mạng máy tính (CSE 320).
+
+[Q2] Điều nào yêu cầu sinh viên phải đóng học phí khi rút môn học?
+[E2] Điều 2: Sinh viên có tên ở điều 1 phải đóng 30% học phí môn Đồ án Truyền thông và mạng máy tính (CSE 320) (149.010 VNĐ) khi rút môn học và nhận điểm W.
+
+[Q3] Điều nào quy định môn học nhận điểm W không được tính điểm trung bình học kỳ và điểm trung bình tích lũy?
+[E1] Điều 1: Đồng ý theo đơn xin của sinh viên Tô Thị Ngọc Thiện, MSSV: 1331210062, ngành Truyền thông và mạng máy tính, Khoa Kỹ thuật được rút môn học và nhận điểm W môn Đồ án Truyền thông và mạng máy tính (CSE 320).
+
+[Q4] Điều nào ghi rõ thời hạn hiệu lực của quyết định?
+[E1] Điều 4: Quyết định này có hiệu lực kể từ học kỳ 2 năm học 2015 – 2016.
+
+Không đủ dữ liệu trong context để trả lời về việc sinh viên cần làm gì sau khi rút môn học hoặc chi tiết về việc thu thập hồ sơ liên quan.

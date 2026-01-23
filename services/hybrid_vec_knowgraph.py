@@ -3,7 +3,7 @@ from neo4j import GraphDatabase
 from qdrant_client import QdrantClient
 from qdrant_client.models import Filter, FieldCondition, MatchAny
 from sentence_transformers import SentenceTransformer
-
+import re
 import torch
 import os
 from transformers import AutoTokenizer, AutoModelForCausalLM
@@ -18,6 +18,8 @@ driver = GraphDatabase.driver(
     auth=(NEO4J_USER, NEO4J_PASSWORD)
 )
 
+OUT_PUT_EVULATION_LLM = "out\\result_evulationLLM"
+os.makedirs(OUT_PUT_EVULATION_LLM, exist_ok=True)
 
 # Qdrant config 
 SERVERQDRANT="http://222.255.214.30:6333"
@@ -149,7 +151,6 @@ def graph_retrieve_documents(driver, question: str):
 
 # ===== Qdrant Vector Search =====
 def vector_search_filtered(qdrant, collection, query_vector, allowed_doc_ids, limit=5):
-    print(allowed_doc_ids )
     flt = Filter(
         must=[FieldCondition(key="doc_id", match=MatchAny(any=allowed_doc_ids))]
     )
@@ -306,7 +307,7 @@ def _load_qwen():
         dtype = torch.float32
     model = AutoModelForCausalLM.from_pretrained(
         MODEL_ID,
-        torch_dtype=dtype,
+        dtype=dtype,
     ).to(device)
     return tokenizer, model, device
 
@@ -379,16 +380,15 @@ MODELS = [
     # "vilm/vinallama-2.7b-chat",
     # "arcee-ai/Arcee-VyLinh",
     # "AITeamVN/Vi-Qwen2-3B-RAG",
-    # "AITeamVN/Vi-Qwen2-1.5B-RAG",
     # "ricepaper/vi-gemma-2b-RAG",
-    # "thangvip/vilord-1.8B-instruct",
-    "vinai/PhoGPT-4B-Chat"
+    # "vinai/PhoGPT-4B-Chat"
     
     # # Multilingual
-    # "Qwen/Qwen2.5-1.5B-Instruct",
-    # "mistralai/Ministral-3-3B-Instruct-2512-BF16"
-    # "meta-llama/Llama-3.2-3B-Instruct",
-    # "arcee-ai/Arcee-VyLinh"
+    "Qwen/Qwen2.5-3B-Instruct",
+    "mistralai/Ministral-3-3B-Instruct-2512",
+    "meta-llama/Llama-3.2-3B-Instruct",
+    "arcee-ai/Arcee-VyLinh",
+    "sail/Sailor-1.8B"
 ]
 
 def check_device():
@@ -418,7 +418,8 @@ def build_context_from_payloads(scored_points, top_k=5):
 
 
 def make_prompt(query, context):
-    return f"""Bạn là trợ lý QA cho văn bản hành chính tiếng Việt (nguồn OCR).
+    return f"""
+Bạn là trợ lý QA cho văn bản hành chính tiếng Việt (nguồn OCR).
 CHỈ được dùng thông tin trong CONTEXT. Không bịa.
 Khi trả lời, phải trích dẫn bằng [E1], [E2]... đúng evidence.
 
@@ -440,9 +441,10 @@ def load_model(model_id):
     tok = AutoTokenizer.from_pretrained(model_id, use_fast=True)
     model = AutoModelForCausalLM.from_pretrained(
         model_id,
-        torch_dtype=dtype,
+        dtype=dtype,
         device_map="auto" if DEVICE == "cuda" else None,
         low_cpu_mem_usage=True,
+        
     )
 
     if DEVICE == "mps":
@@ -453,11 +455,11 @@ def load_model(model_id):
     model.eval()
     return tok, model
 
-def chat_generate(tok, model, prompt, max_new_tokens=256):
+def chat_generate(tok, model, prompt, max_new_tokens=512):
     # Lý do: một số model có chat template, dùng sẽ “đúng format” hơn
     if hasattr(tok, "apply_chat_template"):
         messages = [
-            {"role": "system", "content": "Bạn là trợ lý QA tiếng Việt."},
+            # {"role": "system", "content": "Bạn là trợ lý QA tiếng Việt."},
             {"role": "user", "content": prompt},
         ]
         text = tok.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
@@ -482,7 +484,28 @@ def chat_generate(tok, model, prompt, max_new_tokens=256):
     decoded = tok.decode(out[0], skip_special_tokens=True)
     return decoded
 
-
+def normalize_text(text):
+    # Chuẩn hóa: loại bỏ nhiều dấu xuống dòng liên tiếp, chuyển về 1 dấu cách
+    return re.sub(r'\s+', ' ', text.strip())
+def extract_answer(decoded, prompt):
+    # Loại bỏ prompt hoặc chat_template khỏi đầu kết quả nếu có
+    decoded = decoded.strip()
+    prompt = prompt.strip()
+    # Tìm vị trí xuất hiện cuối cùng của prompt trong decoded
+    idx = decoded.rfind(prompt)
+    if idx != -1:
+        # Lấy phần sau prompt (bỏ luôn prompt và mọi thứ trước nó)
+        answer = decoded[idx + len(prompt):].strip()
+        # Nếu answer bắt đầu bằng dấu xuống dòng hoặc ký tự đặc biệt, loại bỏ
+        return answer.lstrip('\n').lstrip(':').strip()
+    # Nếu không tìm thấy prompt, fallback: loại bỏ các dòng hệ thống/role nếu có
+    
+    lines = decoded.splitlines()
+    filtered = []
+    for line in lines:
+        if not (line.strip().lower().startswith('system:') or line.strip().lower().startswith('user:')):
+            filtered.append(line)
+    return "\n".join(filtered).strip() if filtered else decoded
 
 if __name__=="__main__":
     print("Hybriad Vec Knowgraph Service")
@@ -497,8 +520,6 @@ if __name__=="__main__":
         top_k=5
     )
     hits = sort_hits_in_order(hits)
-    # test1 = build_context1(hits)
-    
     context = build_context_from_payloads(hits)
     QUERY = "Các quyết định của sinh viên Tô Thị Ngọc Thiện"
     prompt = make_prompt(QUERY, context)
@@ -509,8 +530,12 @@ if __name__=="__main__":
         print("MODEL:", mid)
         try:
             tok, model = load_model(mid)
-            ans = chat_generate(tok, model, prompt, max_new_tokens=256)
-            print(ans)
+            ans = chat_generate(tok, model, prompt, max_new_tokens=512)
+            ans = extract_answer(ans, prompt)
+            file_name = f"{mid.replace('/', '_')}_model_answer.txt"
+            with open(OUT_PUT_EVULATION_LLM + "/" + file_name, "w", encoding="utf-8") as f:
+                f.write(ans + "\n")
+            print("Answer saved to", file_name)
         except Exception as e:
             print("ERROR:", repr(e))
         finally:
@@ -519,15 +544,4 @@ if __name__=="__main__":
                 torch.cuda.empty_cache()
             except:
                 pass
-    
-    
-    # print(f"Retrieved {len(hits)} hits.")
-    # result = step5_answer_pipeline(
-    #     question=question,
-    #     hits=hits,
-    #     confidence_level="STRICT"
-    # )
-    # print("ANSWER:")
-    # print(result)
-
     

@@ -1,0 +1,101 @@
+system
+
+Cutting Knowledge Date: December 2023
+Today Date: 23 Jan 2026
+
+user
+
+Bạn là trợ lý QA cho văn bản hành chính tiếng Việt (nguồn OCR).
+CHỈ được dùng thông tin trong CONTEXT. Không bịa.
+Khi trả lời, phải trích dẫn bằng [E1], [E2]... đúng evidence.
+
+CONTEXT:
+[E1] doc_no: 15/QĐ-ĐHQTMĐ-ĐT/2016
+date: 18/01/2016
+summary: Quyết định cho sinh viên Tô Thị Ngọc Thiện - 1331210062 rút môn học và nhận điểm W
+chunk_index: 0
+file_url: host/EIU/HC2016/da27be9f-4a5c-5116-a579-3a18b957aa40_1/HC2016.01/bb6d8626-99bf-b478-4b38-3a18b96a7d76_57.pdf
+text:
+BỘ GIÁO DỤC VÀ ĐÀO TẠO
+Độc lập? Tự do? Hạnh phúc
+Số: 15./QĐ-ĐHQTMĐ-ĐT/2016
+Bình Dương, ngày 18. tháng 1. năm 2016
+QUYẾT ĐỊNH
+V/v cho sinh viên rút môn học và nhận điểm W
+- Căn cứ Quyết định số 1789/QĐ-TTg ngày 27/9/2010 của Thủ tướng chính phủ về việc
+- Căn cứ Quyết định số 01/QĐ-ĐHQTMĐ-HĐQT ngày 06 tháng 10 năm 2010 của Hội
+tế Miền Đông về việc ban hành?Quy chế đào tạo theo học chế tín chi-bậc đại học hệ
+chính quy tập trung?;
+- Căn cứ vào Đơn xin rút môn học và nhận điểm W của sinh viên Tô Thị Ngọc Thiện
+ngày 31/12/2015;
+- Căn cứ vào Tờ trình số.40.40./TTr-ĐHQTMĐ-ĐT/2016 ngày 12 tháng.01.năm 2016
+của Phòng Đào tạo trình Ban Giám Hiệu;
+- Theo đề nghị của Phòng Đào tạo,
+QUYẾT ĐỊNH
+
+---
+[E2] doc_no: 15/QĐ-ĐHQTMĐ-ĐT/2016
+date: 18/01/2016
+summary: Quyết định cho sinh viên Tô Thị Ngọc Thiện - 1331210062 rút môn học và nhận điểm W
+chunk_index: 1
+file_url: host/EIU/HC2016/da27be9f-4a5c-5116-a579-3a18b957aa40_1/HC2016.01/bb6d8626-99bf-b478-4b38-3a18b96a7d76_57.pdf
+text:
+Điều 1: Đồng ý theo đơn xin của sinh viên Tô Thị Ngọc Thiện, MSSV: 1331210062, ngành
+Truyền thông và mạng máy tính, Khoa Kỹ thuật được rút môn học và nhận điểm W môn Đồ
+án Truyền thông và mạng máy tính (CSE 320).
+
+---
+[E3] doc_no: 15/QĐ-ĐHQTMĐ-ĐT/2016
+date: 18/01/2016
+summary: Quyết định cho sinh viên Tô Thị Ngọc Thiện - 1331210062 rút môn học và nhận điểm W
+chunk_index: 2
+file_url: host/EIU/HC2016/da27be9f-4a5c-5116-a579-3a18b957aa40_1/HC2016.01/bb6d8626-99bf-b478-4b38-3a18b96a7d76_57.pdf
+text:
+Điều 2: Sinh viên có tên ở điều 1 phải đóng 30% học phí môn Đồ án Truyền thông và mạng
+máy tính (CSE 320) (149.010 VNĐ) khi rút môn học và nhận điểm W. Môn học sinh' viên
+nhận điểm W sẽ không được tính điểm trung bình học kỳ và điểm trung bình tích lũy. Điều 3: Các Ông (Bà) Trưởng Phòng Đào tạo, Trưởng Khoa Kỹ thuật, các đơn vị liên quan
+và sinh viên có tên trên chịu trách nhiệm thi hành quyết định này
+
+---
+[E4] doc_no: 15/QĐ-ĐHQTMĐ-ĐT/2016
+date: 18/01/2016
+summary: Quyết định cho sinh viên Tô Thị Ngọc Thiện - 1331210062 rút môn học và nhận điểm W
+chunk_index: 3
+file_url: host/EIU/HC2016/da27be9f-4a5c-5116-a579-3a18b957aa40_1/HC2016.01/bb6d8626-99bf-b478-4b38-3a18b96a7d76_57.pdf
+text:
+Điều 4: Quyết định này có hiệu lực kể từ học kỳ 2 năm học 2015? 2016.
+HIỆU TRƯỞNG
+Nơi nhận
+- C ác phòng ban của EIU (để thi hành);
+TRƯỜNG
+K hoa Kỹ thuật (để thi hành);
+ĐẠI HỌC
+- SV Tô Thị Ngọc Thiện;
+QUỐC TẾ
+Lưu: PĐT, TTL
+MIẾN ĐÔNG
+TS. Nguyễn Văn Phúc
+Quỳnh (ĐT)
+
+
+QUESTION:
+Các quyết định của sinh viên Tô Thị Ngọc Thiện
+
+YÊU CẦU TRẢ LỜI:
+1) Trả lời ngắn gọn, đúng trọng tâm.
+2) Nếu hỏi về điều khoản, hãy trích nguyên ý theo OCR và nêu "Điều x".
+3) Luôn kèm trích dẫn [E?] sau mỗi ý quan trọng.
+4) Nếu CONTEXT không đủ để trả lời, nói rõ "Không đủ dữ liệu trong context".assistant
+
+Tôi có thể giúp bạn trả lời câu hỏi này dựa trên văn bản hành chính đã cung cấp.
+
+Câu hỏi: Các quyết định của sinh viên Tô Thị Ngọc Thiện
+
+Dựa trên văn bản, có 4 quyết định của sinh viên Tô Thị Ngọc Thiện như sau:
+
+- Quyết định cho sinh viên Tô Thị Ngọc Thiện rút môn học và nhận điểm W môn Đồ án Truyền thông và mạng máy tính (CSE 320). (Điều 1)
+- Sinh viên phải đóng 30% học phí môn Đồ án Truyền thông và mạng máy tính (CSE 320) khi rút môn học và nhận điểm W. (Điều 2)
+- Các đơn vị liên quan và sinh viên có tên trên chịu trách nhiệm thi hành quyết định này. (Điều 3)
+- Quyết định này có hiệu lực kể từ học kỳ 2 năm học 2015 - 2016. (Điều 4)
+
+[Tên của người ký quyết định]: TS. Nguyễn Văn Phúc
