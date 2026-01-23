@@ -384,11 +384,11 @@ MODELS = [
     # "vinai/PhoGPT-4B-Chat"
     
     # # Multilingual
-    "Qwen/Qwen2.5-3B-Instruct",
-    "mistralai/Ministral-3-3B-Instruct-2512",
-    "meta-llama/Llama-3.2-3B-Instruct",
-    "arcee-ai/Arcee-VyLinh",
-    "sail/Sailor-1.8B"
+    # "Qwen/Qwen2.5-3B-Instruct",
+    # "meta-llama/Llama-3.2-3B-Instruct",
+    "google/gemma-3-4b-it"
+
+
 ]
 
 def check_device():
