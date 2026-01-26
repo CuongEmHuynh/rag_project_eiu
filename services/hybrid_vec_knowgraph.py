@@ -386,7 +386,8 @@ MODELS = [
     # # Multilingual
     # "Qwen/Qwen2.5-3B-Instruct",
     # "meta-llama/Llama-3.2-3B-Instruct",
-    "google/gemma-3-4b-it"
+    "google/gemma-3-4b-it",  
+    "HuggingFaceTB/SmolLM3-3B"
 
 
 ]
@@ -523,8 +524,6 @@ if __name__=="__main__":
     context = build_context_from_payloads(hits)
     QUERY = "Các quyết định của sinh viên Tô Thị Ngọc Thiện"
     prompt = make_prompt(QUERY, context)
-    
-    
     for mid in MODELS:
         print("\n" + "="*90)
         print("MODEL:", mid)
