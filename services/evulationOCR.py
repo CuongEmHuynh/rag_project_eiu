@@ -566,7 +566,7 @@ def step4_recognize_boxes(img_bgr: np.ndarray, ordered_boxes, pad: int = 3):
     results = []
     for i, poly in enumerate(ordered_boxes):
         crop = crop_polygon_warp(img_bgr, poly, pad=pad)
-        # cv2.imwrite(str(OUT_DIR / f"page_{i+1:03d}_box.png"), crop)
+        cv2.imwrite(str(OUT_DIR / f"page_{i+1:03d}_box.png"), crop)
         try:
             text, meta = recognize_ensemble(crop)
         except Exception as e:
