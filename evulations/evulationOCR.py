@@ -1,21 +1,17 @@
-# 01) Import thư viện chuẩn: json để đọc file, re/unicodedata để chuẩn hoá text
 import json
 import re
 import unicodedata
 
-# 02) (Tuỳ chọn) pandas chỉ để in bảng đẹp; không bắt buộc
 try:
     import pandas as pd
 except ImportError:
     pd = None
 
-# 03) Khai báo đường dẫn 3 file OCR (thay đúng path của bạn nếu khác)
-EASYOCR_PATH  = "out/page_001_Esayocr_results.json"
-PADDLEOCR_PATH = "out/page_001_Paddleocr_results.json"
-VIETOCR_PATH  = "out/page_001_Vietocr_results.json"
+EASYOCR_PATH  = "out/result_OCR/page_001_Esayocr_results.json"
+PADDLEOCR_PATH = "out/result_OCR/page_001_Paddleocr_results.json"
+VIETOCR_PATH  = "out/result_OCR/page_001_Vietocr_results.json"
 
-# 04) Khai báo Ground Truth (GT). Nếu bạn chưa có GT file, để None để dùng VietOCR làm proxy.
-GROUND_TRUTH_PATH = None
+GROUND_TRUTH_PATH = "out/result_OCR/page_001_Ground.json"
 # Ví dụ nếu có GT thật:
 # GROUND_TRUTH_PATH = "/mnt/data/page_001_ground_truth.json"
 
@@ -117,7 +113,7 @@ def compute_cer_micro(gt_by_id: dict, hyp_by_id: dict, ids: list) -> float:
         total_dist += levenshtein(list(gt), list(hyp))
         total_len += len(gt)
 
-    # 09.1 Nếu GT rỗng hoàn toàn thì CER không ý nghĩa -> trả 0 để tránh chia 0
+ 
     return (total_dist / total_len) if total_len else 0.0
 
 # 10) Tính WER theo chuẩn micro-average: tổng distance(word) / tổng số từ GT
