@@ -69,7 +69,7 @@
     ],
     "text": "CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM",
     "model": "ground_th",
-    "score": 0.7954545454545454
+    "score": 1.0
   },
   {
     "id": 3,
@@ -93,7 +93,7 @@
     ],
     "text": "TRƯỜNG ĐẠI HỌC QUỐC TẾ MIỀN ĐÔNG",
     "model": "ground_th",
-    "score": 0.8125
+    "score": 1.0
   },
   {
     "id": 4,
@@ -141,7 +141,7 @@
     ],
     "text": "Số 14./QĐ-ĐHQTMĐ-ĐT",
     "model": "ground_th",
-    "score": 0.7777777777777778
+    "score": 1.0
   },
   {
     "id": 6,
@@ -165,7 +165,7 @@
     ],
     "text": "Bình Dương, ngày 19 tháng 01 năm 2017",
     "model": "ground_th",
-    "score": 0.7631578947368421
+    "score": 1.0
   },
   {
     "id": 7,
@@ -189,7 +189,7 @@
     ],
     "text": "QUYẾT ĐỊNH",
     "model": "ground_th",
-    "score": 0.9
+    "score": 1.0
   },
   {
     "id": 8,
@@ -237,7 +237,7 @@
     ],
     "text": "HIỆU TRƯỞNG TRƯỜNG ĐẠI HỌC QUỐC TẾ MIỀN ĐÔNG",
     "model": "ground_th",
-    "score": 0.8181818181818182
+    "score": 1.0
   },
   {
     "id": 10,
@@ -261,7 +261,7 @@
     ],
     "text": "Căn cứ Quyết định số 1789/QĐ-TTg ngày 27/09/2010 của Thủ tướng chính phủ về",
     "model": "ground_th",
-    "score": 0.7721518987341772
+    "score": 1.0
   },
   {
     "id": 11,
@@ -285,7 +285,7 @@
     ],
     "text": "việc thành lập trường Đại học Quốc tế Miền Đông;",
     "model": "ground_th",
-    "score": 0.7916666666666666
+    "score": 1.0
   },
   {
     "id": 12,
@@ -309,7 +309,7 @@
     ],
     "text": "Căn cứ Quyết định số 01/QĐ-ĐHQTMĐ-HĐQT ngày 06/10/2010 của Hội đồng Quản",
     "model": "ground_th",
-    "score": 0.7777777777777778
+    "score": 1.0
   },
   {
     "id": 13,
@@ -333,7 +333,7 @@
     ],
     "text": "trị trường Đại học Quốc tế Miền Đông về việc phê duyệt và ban hành \" Quy chế Tổ",
     "model": "ground_th",
-    "score": 0.759493670886076
+    "score": 1.0
   },
   {
     "id": 14,
@@ -357,7 +357,7 @@
     ],
     "text": "chức và hoạt động của trường Đại học Quốc tế Miền Đông\";",
     "model": "ground_th",
-    "score": 0.7678571428571429
+    "score": 1.0
   },
   {
     "id": 15,
@@ -381,7 +381,7 @@
     ],
     "text": "Căn cứ Quyết định số 08/QĐ-ĐHQTMĐ-ĐT ngày 27/9/2011 của trường Đại học Quốc",
     "model": "ground_th",
-    "score": 0.7733333333333333
+    "score": 1.0
   },
   {
     "id": 16,
@@ -405,7 +405,7 @@
     ],
     "text": "tế Miền Đông về việc ban hành \"Quy chế đào tạo theo học chế tín chỉ-bậc đại học hệ",
     "model": "ground_th",
-    "score": 0.7560975609756098
+    "score": 1.0
   },
   {
     "id": 17,
@@ -429,7 +429,7 @@
     ],
     "text": "chính quy tập trung\";",
     "model": "ground_th",
-    "score": 0.7619047619047619
+    "score": 1.0
   },
   {
     "id": 18,
@@ -453,7 +453,7 @@
     ],
     "text": "Căn cứ Quyết định số 218/QĐ-ĐHQTMĐ-ĐT/2016 ngày 21/9/2016 của Hiệu trưởng",
     "model": "ground_th",
-    "score": 0.7808219178082192
+    "score": 1.0
   },
   {
     "id": 19,
@@ -477,7 +477,7 @@
     ],
     "text": "về việc ban hành Quy chế học bổng 2016;",
     "model": "ground_th",
-    "score": 0.7692307692307693
+    "score": 1.0
   },
   {
     "id": 20,
@@ -501,7 +501,7 @@
     ],
     "text": "Căn cứ vào Tờ trình số 35/TTr-ĐHQTMĐ-ĐT ngày 19/01/2017 về việc khen",
     "model": "ground_th",
-    "score": 0.7428571428571429
+    "score": 1.0
   },
   {
     "id": 21,
@@ -525,7 +525,7 @@
     ],
     "text": "thưởng sinh viên đạt học bổng Dean's List học kỳ 1, năm học 2016-2017;",
     "model": "ground_th",
-    "score": 0.7571428571428571
+    "score": 1.0
   },
   {
     "id": 22,
@@ -549,7 +549,7 @@
     ],
     "text": "- Theo đề nghị của trưởng phòng đào tạo,",
     "model": "ground_th",
-    "score": 0.75
+    "score": 1.0
   },
   {
     "id": 23,
@@ -573,7 +573,7 @@
     ],
     "text": "QUYẾT ĐỊNH",
     "model": "ground_th",
-    "score": 0.9
+    "score": 1.0
   },
   {
     "id": 24,
@@ -597,7 +597,7 @@
     ],
     "text": "Điều 1: Khen thưởng cho 13 sinh viên đạt học bổng Dean's List học kỳ 1, năm học 2016 - ",
     "model": "ground_th",
-    "score": 0.7291666666666666
+    "score": 1.0
   },
   {
     "id": 25,
@@ -621,7 +621,7 @@
     ],
     "text": "2017(danh sách kèm theo) gồm có:",
     "model": "ground_th",
-    "score": 0.75
+    "score": 1.0
   },
   {
     "id": 26,
@@ -645,7 +645,7 @@
     ],
     "text": " 03 sinh viên Khoa Điều dưỡng",
     "model": "ground_th",
-    "score": 0.8
+    "score": 1.0
   },
   {
     "id": 27,
@@ -669,7 +669,7 @@
     ],
     "text": "06 sinh viên Khoa Kỹ thuật",
     "model": "ground_th",
-    "score": 0.8076923076923077
+    "score": 1.0
   },
   {
     "id": 28,
@@ -693,7 +693,7 @@
     ],
     "text": "04 sinh viên Khoa Quản trị kinh doanh",
     "model": "ground_th",
-    "score": 0.8108108108108109
+    "score": 1.0
   },
   {
     "id": 29,
@@ -717,7 +717,7 @@
     ],
     "text": "Điều 2: Các Ông (Bà) Trưởng Phòng Đào tạo, Trưởng Phòng Kế toán - Tài chính, Trưởng",
     "model": "ground_th",
-    "score": 0.7349397590361446
+    "score": 1.0
   },
   {
     "id": 30,
@@ -741,7 +741,7 @@
     ],
     "text": "các Khoa, các đơn vị liên quan và các sinh viên có tên trong danh sách chịu trách nhiệm thi",
     "model": "ground_th",
-    "score": 0.7802197802197802
+    "score": 1.0
   },
   {
     "id": 31,
@@ -765,7 +765,7 @@
     ],
     "text": "hành quyết định này.",
     "model": "ground_th",
-    "score": 0.8421052631578947
+    "score": 1.0
   },
   {
     "id": 32,
@@ -789,7 +789,7 @@
     ],
     "text": "Điều 3: Quyết định có hiệu lực kể từ ngày ký.",
     "model": "ground_th",
-    "score": 0.7333333333333333
+    "score": 1.0
   },
   {
     "id": 33,
@@ -813,7 +813,7 @@
     ],
     "text": "Nơi nhận:",
     "model": "ground_th",
-    "score": 0.7777777777777778
+    "score": 1.0
   },
   {
     "id": 34,
@@ -837,7 +837,7 @@
     ],
     "text": "HĐQT (để báo cáo)",
     "model": "ground_th",
-    "score": 0.7058823529411765
+    "score": 1.0
   },
   {
     "id": 35,
@@ -861,7 +861,7 @@
     ],
     "text": "HIỆU TRƯỞNG",
     "model": "ground_th",
-    "score": 0.8461538461538461
+    "score": 1.0
   },
   {
     "id": 36,
@@ -885,7 +885,7 @@
     ],
     "text": "- Như điều 2;",
     "model": "ground_th",
-    "score": 0.6153846153846154
+    "score": 1.0
   },
   {
     "id": 37,
@@ -909,7 +909,7 @@
     ],
     "text": "Lưu: PĐT, TTL.",
     "model": "ground_th",
-    "score": 0.8461538461538461
+    "score": 1.0
   },
   {
     "id": 38,
@@ -933,7 +933,7 @@
     ],
     "text": "TS. Nguyễn Văn Phúc",
     "model": "ground_th",
-    "score": 0.7894736842105263
+    "score": 1.0
   },
   {
     "id": 39,
@@ -957,6 +957,6 @@
     ],
     "text": "Điệp(ĐT)",
     "model": "ground_th",
-    "score": 0.75
+    "score": 1.0
   }
 ]
