@@ -594,24 +594,24 @@ if __name__=="__main__":
         bin_img, angle, img_bgr = preprocess(img)
         bin_pages.append(bin_img)
         clean_pages.append(img_bgr)
-        # cv2.imwrite(str(OUT_DIR / f"page_{i+1:03d}_bin.png"), bin_img)
-        # cv2.imwrite(str(OUT_DIR / f"page_{i+1:03d}_clean.png"), img_bgr)
+        cv2.imwrite(str(OUT_DIR / f"page_{i+1:03d}_bin.png"), bin_img)
+        cv2.imwrite(str(OUT_DIR / f"page_{i+1:03d}_clean.png"), img_bgr)
     
-    print("Preprocessing done.")
-    print(bin_pages[0].shape)
-    # Detect text regions and draw boxes
-    # boxs = step3_detect_regions(bin_pages[0], debug_dir="debug", page_id=1)
-    out = step3_detect_pipeline(
-    img_bgr=bin_pages[0],
-    ocr_det=ocr_det,
-    page_id=1,
-    debug_dir="debug",
-    det_score_thr=0.0,  # có thể set 0.3 nếu nhiều nhiễu
-    filter_cfg=dict(min_w=25, min_h=12, max_h=260, min_area=250, min_aspect=1.1),
-    line_tol=18
-)
-    print(f"Detected {len(out['ordered_boxes'])} text boxes on page 1.")
-    ocr_result =  step4_recognize_boxes(clean_pages[0], out['ordered_boxes'], pad=3)
-    import json
-    with open(str(OUT_DIR / "page_001_Esayocr_results.json"), "w", encoding="utf-8") as f:
-        json.dump(ocr_result, f, ensure_ascii=False, indent=2)
+#     print("Preprocessing done.")
+#     print(bin_pages[0].shape)
+#     # Detect text regions and draw boxes
+#     # boxs = step3_detect_regions(bin_pages[0], debug_dir="debug", page_id=1)
+#     out = step3_detect_pipeline(
+#     img_bgr=bin_pages[0],
+#     ocr_det=ocr_det,
+#     page_id=1,
+#     debug_dir="debug",
+#     det_score_thr=0.0,  # có thể set 0.3 nếu nhiều nhiễu
+#     filter_cfg=dict(min_w=25, min_h=12, max_h=260, min_area=250, min_aspect=1.1),
+#     line_tol=18
+# )
+#     print(f"Detected {len(out['ordered_boxes'])} text boxes on page 1.")
+#     ocr_result =  step4_recognize_boxes(clean_pages[0], out['ordered_boxes'], pad=3)
+#     import json
+#     with open(str(OUT_DIR / "page_001_Esayocr_results.json"), "w", encoding="utf-8") as f:
+#         json.dump(ocr_result, f, ensure_ascii=False, indent=2)

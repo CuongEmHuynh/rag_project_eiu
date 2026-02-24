@@ -378,16 +378,19 @@ MODELS = [
     # Vietnamese
     # "phamhai/Llama-3.2-3B-Instruct-Frog",
     # "vilm/vinallama-2.7b-chat",
-    # "arcee-ai/Arcee-VyLinh",
-    # "AITeamVN/Vi-Qwen2-3B-RAG",
-    # "ricepaper/vi-gemma-2b-RAG",
-    # "vinai/PhoGPT-4B-Chat"
+    "arcee-ai/Arcee-VyLinh",
+    "AITeamVN/Vi-Qwen2-3B-RAG",
+    "ricepaper/vi-gemma-2b-RAG",
+    # "vinai/PhoGPT-4B-Chat",
+    # "Viet-Mistral/Vistral-7B-Chat"
+    
     
     # # Multilingual
     # "Qwen/Qwen2.5-3B-Instruct",
     # "meta-llama/Llama-3.2-3B-Instruct",
-    "google/gemma-3-4b-it",  
-    "HuggingFaceTB/SmolLM3-3B"
+    # "google/gemma-3-4b-it",  
+    # "HuggingFaceTB/SmolLM3-3B",
+    # "microsoft/Phi-3.5-mini-instruct"
 
 
 ]
@@ -489,17 +492,12 @@ def normalize_text(text):
     # Chuẩn hóa: loại bỏ nhiều dấu xuống dòng liên tiếp, chuyển về 1 dấu cách
     return re.sub(r'\s+', ' ', text.strip())
 def extract_answer(decoded, prompt):
-    # Loại bỏ prompt hoặc chat_template khỏi đầu kết quả nếu có
     decoded = decoded.strip()
     prompt = prompt.strip()
-    # Tìm vị trí xuất hiện cuối cùng của prompt trong decoded
     idx = decoded.rfind(prompt)
     if idx != -1:
-        # Lấy phần sau prompt (bỏ luôn prompt và mọi thứ trước nó)
         answer = decoded[idx + len(prompt):].strip()
-        # Nếu answer bắt đầu bằng dấu xuống dòng hoặc ký tự đặc biệt, loại bỏ
         return answer.lstrip('\n').lstrip(':').strip()
-    # Nếu không tìm thấy prompt, fallback: loại bỏ các dòng hệ thống/role nếu có
     
     lines = decoded.splitlines()
     filtered = []

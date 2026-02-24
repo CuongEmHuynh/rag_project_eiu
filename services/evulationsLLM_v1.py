@@ -4,17 +4,18 @@ from transformers import AutoTokenizer, AutoModelForCausalLM
 
 MODELS = [
     # Vietnamese-focused
-    "phamhai/Llama-3.2-3B-Instruct-Frog",
-    "vilm/vinallama-2.7b-chat",
-    "arcee-ai/Arcee-VyLinh",
-    "AITeamVN/Vi-Qwen2-3B-RAG",
-    "AITeamVN/Vi-Qwen2-1.5B-RAG",
-    "ricepaper/vi-gemma-2b-RAG",
-    "thangvip/vilord-1.8B-instruct",
+    # "phamhai/Llama-3.2-3B-Instruct-Frog",
+    # "vilm/vinallama-2.7b-chat",
+    # "arcee-ai/Arcee-VyLinh",
+    # "AITeamVN/Vi-Qwen2-3B-RAG",
+    # "AITeamVN/Vi-Qwen2-1.5B-RAG",
+    # "ricepaper/vi-gemma-2b-RAG",
+    # "thangvip/vilord-1.8B-instruct",
     # Multilingual
-    "Qwen/Qwen2.5-1.5B-Instruct",
-    "facebook/xglm-2.9B",
-    "mistralai/Ministral-3-3B-Instruct-2512-BF16",
+    # "Qwen/Qwen2.5-1.5B-Instruct",
+    # "facebook/xglm-2.9B",
+    # "mistralai/Ministral-3-3B-Instruct-2512-BF16",
+    "microsoft/Phi-3.5-mini-instruct"
 ]
 
 def check_device():
@@ -113,6 +114,6 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    chat_generate
 
-    #
+    
