@@ -1,0 +1,183 @@
+{
+  "input": "assets/demo/layout_detection",
+  "task": "layout_detection",
+  "num_pages": 3,
+  "pages": [
+    {
+      "page_id": "2",
+      "width": 2480,
+      "height": 3508,
+      "blocks": [
+        {
+          "id": 1,
+          "label": "TITLE",
+          "score": 0.1998102068901062,
+          "bbox": [
+            249,
+            279,
+            1332,
+            430
+          ],
+          "order": 1,
+          "ocr": true
+        },
+        {
+          "id": 2,
+          "label": "TITLE",
+          "score": 0.28249645233154297,
+          "bbox": [
+            1424,
+            287,
+            2479,
+            437
+          ],
+          "order": 2,
+          "ocr": true
+        },
+        {
+          "id": 3,
+          "label": "PLAIN_TEXT",
+          "score": 0.17150144279003143,
+          "bbox": [
+            440,
+            489,
+            1143,
+            564
+          ],
+          "order": 3,
+          "ocr": true
+        },
+        {
+          "id": 4,
+          "label": "PLAIN_TEXT",
+          "score": 0.48618900775909424,
+          "bbox": [
+            1557,
+            498,
+            2479,
+            573
+          ],
+          "order": 4,
+          "ocr": true
+        },
+        {
+          "id": 5,
+          "label": "TITLE",
+          "score": 0.9011180400848389,
+          "bbox": [
+            1171,
+            646,
+            1603,
+            748
+          ],
+          "order": 5,
+          "ocr": true
+        },
+        {
+          "id": 6,
+          "label": "PLAIN_TEXT",
+          "score": 0.7015316486358643,
+          "bbox": [
+            446,
+            759,
+            2365,
+            830
+          ],
+          "order": 6,
+          "ocr": true
+        },
+        {
+          "id": 7,
+          "label": "PLAIN_TEXT",
+          "score": 0.5585803389549255,
+          "bbox": [
+            499,
+            873,
+            1251,
+            952
+          ],
+          "order": 7,
+          "ocr": true
+        },
+        {
+          "id": 8,
+          "label": "TABLE",
+          "score": 0.763510525226593,
+          "bbox": [
+            202,
+            1013,
+            2479,
+            2743
+          ],
+          "order": 8,
+          "ocr": true
+        },
+        {
+          "id": 9,
+          "label": "TITLE",
+          "score": 0.3292086720466614,
+          "bbox": [
+            203,
+            2806,
+            413,
+            2858
+          ],
+          "order": 9,
+          "ocr": true
+        },
+        {
+          "id": 10,
+          "label": "PLAIN_TEXT",
+          "score": 0.6634054183959961,
+          "bbox": [
+            199,
+            2803,
+            772,
+            3034
+          ],
+          "order": 10,
+          "ocr": true
+        },
+        {
+          "id": 11,
+          "label": "TITLE",
+          "score": 0.5262073874473572,
+          "bbox": [
+            1680,
+            2878,
+            2317,
+            2951
+          ],
+          "order": 11,
+          "ocr": true
+        },
+        {
+          "id": 12,
+          "label": "FIGURE",
+          "score": 0.4397728741168976,
+          "bbox": [
+            1826,
+            2992,
+            2091,
+            3228
+          ],
+          "order": 12,
+          "ocr": false
+        },
+        {
+          "id": 13,
+          "label": "FIGURE_CAPTION",
+          "score": 0.3464019000530243,
+          "bbox": [
+            1741,
+            3279,
+            2248,
+            3351
+          ],
+          "order": 13,
+          "ocr": true
+        }
+      ]
+    }
+  ]
+}
