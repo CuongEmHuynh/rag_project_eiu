@@ -105,6 +105,8 @@ def render_pdf_to_images(pdf_path: str, dpi: int = 300):
         images.append(img)
     return images
 
+
+
 if __name__=="__main__":
     url_extract_layout = "http://localhost:8000/layout/detect"
     
