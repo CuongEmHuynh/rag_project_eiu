@@ -1,0 +1,69 @@
+version: '3.9'
+
+services:
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: qdrant
+    restart: unless-stopped
+
+    ports:
+      - "6333:6333"   # REST API
+      - "6334:6334"   # gRPC
+
+    volumes:
+      - ./qdrant/storage:/qdrant/storage
+
+    environment:
+      QDRANT__SERVICE__HTTP_PORT: 6333
+      QDRANT__SERVICE__GRPC_PORT: 6334
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+    networks:
+      - web-net
+
+
+  neo4j:
+    image: neo4j:5-community
+    container_name: neo4j
+    restart: unless-stopped
+
+    ports:
+      - "7474:7474"   # Browser UI
+      - "7687:7687"   # Bolt protocol
+
+    environment:
+      NEO4J_AUTH: neo4j/CjeZD6XqRXhg
+      # Memory config
+      NEO4J_server_memory_heap_initial__size: 1G
+      NEO4J_server_memory_heap_max__size: 2G
+
+      # APOC plugin
+      NEO4J_PLUGINS: '["apoc"]'
+
+      # Allow APOC
+      NEO4J_dbms_security_procedures_unrestricted: apoc.*
+      NEO4J_dbms_security_procedures_allowlist: apoc.*
+
+    volumes:
+      - ./neo4j/data:/data
+      - ./neo4j/logs:/logs
+      - ./neo4j/plugins:/plugins
+
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:7474 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+    networks:
+      - web-net
+
+networks:
+  web-net:
+    external: true
