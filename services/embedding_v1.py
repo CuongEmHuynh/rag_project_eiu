@@ -11,7 +11,7 @@ from qdrant_client.models import Filter, FieldCondition, MatchAny
 
 
 # Qdrant Config
-SERVERQDRANT="http://222.255.214.30:6333"
+SERVERQDRANT="http://10.10.49.220:6333"
 COLLECTION_NAME="rag_document_v2"
 MODEL_EMBEDDING="bkai-foundation-models/vietnamese-bi-encoder"
 OCR_DIR = Path("./data/file_contents")
@@ -23,9 +23,8 @@ SECTION_RE = re.compile(
 )
 KHOAN_SPLIT_RE = re.compile(r"(?m)(?=^\s*\d+\.\s)")
 MIN_CHUNK_CHARS = 200
-MAX_CHUNK_CHARS = 1200
+MAX_CHUNK_CHARS = 1024
 OVERLAP_WORDS = 40
-
 
 client= QdrantClient(url=SERVERQDRANT)
 

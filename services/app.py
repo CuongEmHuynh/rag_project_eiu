@@ -63,7 +63,7 @@ def retrieve_hits(question: str):
             limit=TOP_K,
         )
     else:
-        hits = rag.qdrant.search(
+        hits = rag.qdrant.query_points(
             collection_name=rag.COLLECTION_NAME,
             query_vector=query_vector,
             limit=TOP_K,
