@@ -67,12 +67,87 @@
       overflow-x: auto;
       padding-bottom: 8px;
     }
+
+    .phase-notes {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin: 0 0 20px;
+    }
+
+    .phase-note {
+      min-height: 120px;
+      padding: 16px;
+      background: var(--panel);
+      border: 1px solid var(--rule);
+      border-radius: 8px;
+    }
+
+    .phase-note .tag {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--accent);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .phase-note h2 {
+      margin: 0 0 8px;
+      color: var(--ink);
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+
+    .phase-note p {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    @media (max-width: 980px) {
+      .phase-notes {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 620px) {
+      .phase-notes {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
 </head>
 <body>
   <main class="frame">
     <p class="eyebrow">Flowchart · OCR pipeline</p>
     <h1>OCR JSON to Retrieval Chunks Flow</h1>
+    <section class="phase-notes" aria-label="Phase descriptions">
+      <article class="phase-note">
+        <span class="tag">Phase 01</span>
+        <h2>Input cleanup</h2>
+        <p>Nạp OCR JSON, tách các block văn bản, chuẩn hóa tọa độ/nội dung và loại bỏ nhiễu rõ ràng trước khi phân tích cấu trúc.</p>
+      </article>
+      <article class="phase-note">
+        <span class="tag">Phase 02</span>
+        <h2>Reading structure</h2>
+        <p>Sắp xếp block theo thứ tự đọc, nhận diện vùng tài liệu như tiêu đề, điều khoản, đoạn văn, bảng và nối lại bảng bị tách qua nhiều trang.</p>
+      </article>
+      <article class="phase-note">
+        <span class="tag">Phase 03</span>
+        <h2>Tree and atomic units</h2>
+        <p>Dựng cây tài liệu theo quan hệ cha-con, sau đó tạo các atomic units làm đơn vị nhỏ nhất còn giữ nguyên ngữ nghĩa.</p>
+      </article>
+      <article class="phase-note">
+        <span class="tag">Phase 04</span>
+        <h2>Chunk construction</h2>
+        <p>Đóng gói theo giới hạn token, tạo parent chunks và child chunks, sinh retrieval_text, kiểm tra hợp lệ rồi trả về chunks cho truy xuất.</p>
+      </article>
+    </section>
     <div class="scroll">
       <svg viewBox="0 0 1200 820" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="ocr-chunking-flow-title ocr-chunking-flow-desc">
         <title id="ocr-chunking-flow-title">OCR JSON to Retrieval Chunks Flow</title>
