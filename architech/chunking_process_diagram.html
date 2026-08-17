@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Quy trình chunking SAHC-v2</title>
+  <style>
+    :root {
+      --paper: #ffffff;
+      --ink: #000000;
+      --panel: #ededed;
+      --rule: #b8bcc4;
+      --muted: #5f6673;
+      --soft: #838a96;
+      --accent: #3d8dff;
+      --accent-soft: #6dcbf4;
+      --accent-tint: rgba(61, 141, 255, 0.10);
+      --success: #00a240;
+      --warning: #e25507;
+      --radius: 8px;
+      --font-sans: "Helvetica Neue", Arial, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--font-sans);
+      line-height: 1.5;
+    }
+
+    main {
+      width: min(1500px, calc(100vw - 48px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      color: var(--accent);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(32px, 4vw, 56px);
+      line-height: 1.04;
+      letter-spacing: 0;
+      font-weight: 700;
+    }
+
+    .lede {
+      max-width: 980px;
+      margin: 16px 0 32px;
+      color: #343842;
+      font-size: 18px;
+    }
+
+    .figure-shell {
+      overflow-x: auto;
+      border: 1px solid rgba(184, 188, 196, 0.72);
+      border-radius: var(--radius);
+      background: #fbfbfb;
+    }
+
+    svg {
+      display: block;
+      min-width: 1560px;
+      width: 100%;
+      height: auto;
+    }
+
+    .explain-grid {
+      display: grid;
+      grid-template-columns: 1.08fr 0.98fr 0.94fr;
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    .card {
+      min-height: 100%;
+      padding: 18px 18px 16px;
+      border: 1px solid rgba(184, 188, 196, 0.72);
+      border-radius: 8px;
+      background: #ffffff;
+    }
+
+    .card h2 {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 10px;
+      font-size: 17px;
+      line-height: 1.25;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      flex: 0 0 auto;
+      border-radius: 999px;
+      background: var(--accent);
+    }
+
+    .dot.green {
+      background: var(--success);
+    }
+
+    .dot.orange {
+      background: var(--warning);
+    }
+
+    .card ul {
+      margin: 0;
+      padding-left: 18px;
+      color: #343842;
+      font-size: 14px;
+    }
+
+    .card li + li {
+      margin-top: 7px;
+    }
+
+    code {
+      font-family: var(--font-mono);
+      font-size: 0.92em;
+      color: #111827;
+      background: rgba(61, 141, 255, 0.08);
+      border: 1px solid rgba(61, 141, 255, 0.18);
+      border-radius: 4px;
+      padding: 1px 5px;
+    }
+
+    .source-note {
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(184, 188, 196, 0.72);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 12px;
+    }
+
+    @media (max-width: 900px) {
+      main {
+        width: min(100vw - 28px, 1500px);
+        padding-top: 28px;
+      }
+
+      .explain-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="eyebrow">SAHC-v2 / STRUCTURE-AWARE CHUNKING</p>
+    <h1>Quy trình thực hiện chunking cho tài liệu OCR</h1>
+    <p class="lede">
+      Sơ đồ này tổng hợp từ <code>CODE_MAP_CHUNKING_ANALYSIS.md</code> và
+      <code>CHUNKING_V2_CODEX_SPEC.md</code>: hệ thống parse cấu trúc tài liệu trước,
+      tạo semantic atomic units, rồi mới dùng token budget để đóng gói thành parent/child chunks.
+    </p>
+
+    <section class="figure-shell" aria-label="Sơ đồ quy trình chunking SAHC-v2">
+      <svg viewBox="0 0 1560 664" role="img" aria-labelledby="sahc-title sahc-desc" xmlns="http://www.w3.org/2000/svg">
+        <title id="sahc-title">Quy trình chunking SAHC-v2</title>
+        <desc id="sahc-desc">Sơ đồ tám bước từ OCR JSON đến child retrieval và context expansion cho hệ thống chunking SAHC-v2.</desc>
+        <defs>
+          <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#5f6673"/>
+          </marker>
+          <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#3d8dff"/>
+          </marker>
+          <pattern id="grid" width="24" height="24" patternUnits="userSpaceOnUse">
+            <path d="M 24 0 L 0 0 0 24" fill="none" stroke="rgba(0,0,0,0.04)" stroke-width="1"/>
+          </pattern>
+        </defs>
+
+        <rect width="1560" height="664" fill="#ffffff"/>
+        <rect width="1560" height="664" fill="url(#grid)" opacity="0.55"/>
+
+        <text x="48" y="56" fill="#3d8dff" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="12" font-weight="700" letter-spacing="0.14em">PROCESS OVERVIEW</text>
+        <text x="48" y="88" fill="#000000" font-family="Helvetica Neue, Arial, sans-serif" font-size="28" font-weight="700">OCR JSON -> Structure/Table -> Atomic Units -> Token-safe Parent/Child Retrieval</text>
+        <text x="48" y="116" fill="#5f6673" font-family="Helvetica Neue, Arial, sans-serif" font-size="15">Nguyên tắc chính: không chunk văn bản hành chính như chuỗi ký tự; parse cấu trúc trước, pack theo token sau.</text>
+
+        <!-- connectors -->
+        <line x1="208" y1="248" x2="232" y2="248" stroke="#5f6673" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <line x1="392" y1="248" x2="416" y2="248" stroke="#5f6673" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <line x1="576" y1="248" x2="600" y2="248" stroke="#3d8dff" stroke-width="1.6" marker-end="url(#arrow-accent)"/>
+        <line x1="760" y1="248" x2="784" y2="248" stroke="#3d8dff" stroke-width="1.6" marker-end="url(#arrow-accent)"/>
+        <line x1="944" y1="248" x2="968" y2="248" stroke="#5f6673" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <line x1="1128" y1="248" x2="1152" y2="248" stroke="#5f6673" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <line x1="1312" y1="248" x2="1336" y2="248" stroke="#5f6673" stroke-width="1.2" marker-end="url(#arrow)"/>
+
+        <!-- stage 1 -->
+        <rect x="48" y="176" width="160" height="144" rx="8" fill="#ffffff"/>
+        <rect x="48" y="176" width="160" height="144" rx="8" fill="#ffffff" stroke="#b8bcc4" stroke-width="1"/>
+        <rect x="60" y="188" width="32" height="16" rx="4" fill="rgba(61,141,255,0.12)" stroke="rgba(61,141,255,0.35)" stroke-width="0.8"/>
+        <text x="76" y="200" text-anchor="middle" fill="#3d8dff" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="9" font-weight="700">01</text>
+        <text x="128" y="224" text-anchor="middle" fill="#000000" font-family="Helvetica Neue, Arial, sans-serif" font-size="14" font-weight="700">OCR JSON</text>
+        <text x="128" y="244" text-anchor="middle" fill="#5f6673" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10">load_ocr_json()</text>
+        <text x="128" y="268" text-anchor="middle" fill="#343842" font-family="Helvetica Neue, Arial, sans-serif" font-size="11">Giữ raw + normalized</text>
+        <text x="128" y="288" text-anchor="middle" fill="#343842" font-family="Helvetica Neue, Arial, sans-serif" font-size="11">page, bbox, block_id</text>
+
+        <!-- stage 2 -->
+        <rect x="232" y="176" width="160" height="144" rx="8" fill="#ffffff"/>
+        <rect x="232" y="176" width="160" height="144" rx="8" fill="#ffffff" stroke="#b8bcc4" stroke-width="1"/>
+        <rect x="244" y="188" width="32" height="16" rx="4" fill="rgba(61,141,255,0.12)" stroke="rgba(61,141,255,0.35)" stroke-width="0.8"/>
+        <text x="260" y="200" text-anchor="middle" fill="#3d8dff" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="9" font-weight="700">02</text>
+        <text x="312" y="224" text-anchor="middle" fill="#000000" font-family="Helvetica Neue, Arial, sans-serif" font-size="14" font-weight="700">Normalize + Filter</text>
+        <text x="312" y="244" text-anchor="middle" fill="#5f6673" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10">normalize.py</text>
+        <text x="312" y="268" text-anchor="middle" fill="#343842" font-family="Helvetica Neue, Arial, sans-serif" font-size="11">Loại page/stamp noise</text>
+        <text x="312" y="288" text-anchor="middle" fill="#343842" font-family="Helvetica Neue, Arial, sans-serif" font-size="11">Không sửa nội dung OCR</text>
+
+        <!-- stage 3 -->
+        <rect x="416" y="176" width="160" height="144" rx="8" fill="#ffffff"/>
+        <rect x="416" y="176" width="160" height="144" rx="8" fill="#ffffff" stroke="#b8bcc4" stroke-width="1"/>
+        <rect x="428" y="188" width="32" height="16" rx="4" fill="rgba(61,141,255,0.12)" stroke="rgba(61,141,255,0.35)" stroke-width="0.8"/>
+        <text x="444" y="200" text-anchor="middle" fill="#3d8dff" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="9" font-weight="700">03</text>
+        <text x="496" y="224" text-anchor="middle" fill="#000000" font-family="Helvetica Neue, Arial, sans-serif" font-size="14" font-weight="700">Document Tree</text>
+        <text x="496" y="244" text-anchor="middle" fill="#5f6673" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10">structure_parser</text>
+        <text x="496" y="268" text-anchor="middle" fill="#343842" font-family="Helvetica Neue, Arial, sans-serif" font-size="11">Điều, Khoản, Điểm</text>
+        <text x="496" y="288" text-anchor="middle" fill="#343842" font-family="Helvetica Neue, Arial, sans-serif" font-size="11">Căn cứ, Nơi nhận</text>
+
+        <!-- stage 4 focal -->
+        <rect x="600" y="176" width="160" height="144" rx="8" fill="rgba(61,141,255,0.10)"/>
+        <rect x="600" y="176" width="160" height="144" rx="8" fill="rgba(61,141,255,0.10)" stroke="#3d8dff" stroke-width="1.4"/>
+        <rect x="612" y="188" width="32" height="16" rx="4" fill="#3d8dff"/>
+        <text x="628" y="200" text-anchor="middle" fill="#ffffff" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="9" font-weight="700">04</text>
+        <text x="680" y="224" text-anchor="middle" fill="#000000" font-family="Helvetica Neue, Arial, sans-serif" font-size="14" font-weight="700">Table Semantics</text>
+        <text x="680" y="244" text-anchor="middle" fill="#3d8dff" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10">table_parser</text>
+        <text x="680" y="268" text-anchor="middle" fill="#343842" font-family="Helvetica Neue, Arial, sans-serif" font-size="11">Flatten header</text>
+        <text x="680" y="288" text-anchor="middle" fill="#343842" font-family="Helvetica Neue, Arial, sans-serif" font-size="11">Merge table qua trang</text>
+
+        <!-- stage 5 focal -->
+        <rect x="784" y="176" width="160" height="144" rx="8" fill="rgba(61,141,255,0.10)"/>
+        <rect x="784" y="176" width="160" height="144" rx="8" fill="rgba(61,141,255,0.10)" stroke="#3d8dff" stroke-width="1.4"/>
+        <rect x="796" y="188" width="32" height="16" rx="4" fill="#3d8dff"/>
+        <text x="812" y="200" text-anchor="middle" fill="#ffffff" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="9" font-weight="700">05</text>
+        <text x="864" y="224" text-anchor="middle" fill="#000000" font-family="Helvetica Neue, Arial, sans-serif" font-size="14" font-weight="700">Atomic Units</text>
+        <text x="864" y="244" text-anchor="middle" fill="#3d8dff" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10">create_atomic_units()</text>
+        <text x="864" y="268" text-anchor="middle" fill="#343842" font-family="Helvetica Neue, Arial, sans-serif" font-size="11">Prose + table rows</text>
+        <text x="864" y="288" text-anchor="middle" fill="#343842" font-family="Helvetica Neue, Arial, sans-serif" font-size="11">Có parent + provenance</text>
+
+        <!-- stage 6 -->
+        <rect x="968" y="176" width="160" height="144" rx="8" fill="#ffffff"/>
+        <rect x="968" y="176" width="160" height="144" rx="8" fill="#ffffff" stroke="#b8bcc4" stroke-width="1"/>
+        <rect x="980" y="188" width="32" height="16" rx="4" fill="rgba(61,141,255,0.12)" stroke="rgba(61,141,255,0.35)" stroke-width="0.8"/>
+        <text x="996" y="200" text-anchor="middle" fill="#3d8dff" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="9" font-weight="700">06</text>
+        <text x="1048" y="224" text-anchor="middle" fill="#000000" font-family="Helvetica Neue, Arial, sans-serif" font-size="14" font-weight="700">Token Packing</text>
+        <text x="1048" y="244" text-anchor="middle" fill="#5f6673" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10">token_packer</text>
+        <text x="1048" y="268" text-anchor="middle" fill="#343842" font-family="Helvetica Neue, Arial, sans-serif" font-size="11">Đếm cả prefix context</text>
+        <text x="1048" y="288" text-anchor="middle" fill="#343842" font-family="Helvetica Neue, Arial, sans-serif" font-size="11">Không silent truncate</text>
+
+        <!-- stage 7 -->
+        <rect x="1152" y="176" width="160" height="144" rx="8" fill="#ffffff"/>
+        <rect x="1152" y="176" width="160" height="144" rx="8" fill="#ffffff" stroke="#b8bcc4" stroke-width="1"/>
+        <rect x="1164" y="188" width="32" height="16" rx="4" fill="rgba(61,141,255,0.12)" stroke="rgba(61,141,255,0.35)" stroke-width="0.8"/>
+        <text x="1180" y="200" text-anchor="middle" fill="#3d8dff" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="9" font-weight="700">07</text>
+        <text x="1232" y="224" text-anchor="middle" fill="#000000" font-family="Helvetica Neue, Arial, sans-serif" font-size="14" font-weight="700">Parent / Child</text>
+        <text x="1232" y="244" text-anchor="middle" fill="#5f6673" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10">chunk_builder</text>
+        <text x="1232" y="268" text-anchor="middle" fill="#343842" font-family="Helvetica Neue, Arial, sans-serif" font-size="11">Parent giữ context</text>
+        <text x="1232" y="288" text-anchor="middle" fill="#343842" font-family="Helvetica Neue, Arial, sans-serif" font-size="11">Child dùng embedding</text>
+
+        <!-- stage 8 -->
+        <rect x="1336" y="176" width="160" height="144" rx="8" fill="#ffffff"/>
+        <rect x="1336" y="176" width="160" height="144" rx="8" fill="#ffffff" stroke="#b8bcc4" stroke-width="1"/>
+        <rect x="1348" y="188" width="32" height="16" rx="4" fill="rgba(61,141,255,0.12)" stroke="rgba(61,141,255,0.35)" stroke-width="0.8"/>
+        <text x="1364" y="200" text-anchor="middle" fill="#3d8dff" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="9" font-weight="700">08</text>
+        <text x="1416" y="224" text-anchor="middle" fill="#000000" font-family="Helvetica Neue, Arial, sans-serif" font-size="14" font-weight="700">Validate + Retrieve</text>
+        <text x="1416" y="244" text-anchor="middle" fill="#5f6673" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="10">validators/retrieval</text>
+        <text x="1416" y="268" text-anchor="middle" fill="#343842" font-family="Helvetica Neue, Arial, sans-serif" font-size="11">Child-only search</text>
+        <text x="1416" y="288" text-anchor="middle" fill="#343842" font-family="Helvetica Neue, Arial, sans-serif" font-size="11">Expand parent/siblings</text>
+
+        <!-- explanation panels -->
+        <rect x="48" y="384" width="456" height="164" rx="8" fill="#ededed" stroke="#b8bcc4" stroke-width="1"/>
+        <text x="72" y="420" fill="#000000" font-family="Helvetica Neue, Arial, sans-serif" font-size="17" font-weight="700">Structure-aware trước token-aware</text>
+        <text x="72" y="448" fill="#343842" font-family="Helvetica Neue, Arial, sans-serif" font-size="13">Parser tạo cây document -> preamble -> Điều -> Khoản -> Điểm -> table.</text>
+        <text x="72" y="472" fill="#343842" font-family="Helvetica Neue, Arial, sans-serif" font-size="13">Nhờ vậy chunk biết section_path, parent_id, page range và source_block_ids.</text>
+        <text x="72" y="496" fill="#343842" font-family="Helvetica Neue, Arial, sans-serif" font-size="13">Không split substring “ở điều 1” vì boundary phải ở đầu block/paragraph.</text>
+        <text x="72" y="520" fill="#343842" font-family="Helvetica Neue, Arial, sans-serif" font-size="13">Raw OCR được giữ riêng; normalized text chỉ dùng để parse/retrieval.</text>
+
+        <rect x="552" y="384" width="456" height="164" rx="8" fill="rgba(61,141,255,0.10)" stroke="#3d8dff" stroke-width="1.2"/>
+        <text x="576" y="420" fill="#000000" font-family="Helvetica Neue, Arial, sans-serif" font-size="17" font-weight="700">Table-aware row chunking</text>
+        <text x="576" y="448" fill="#343842" font-family="Helvetica Neue, Arial, sans-serif" font-size="13">HTML table được parse thành schema, không embed raw HTML làm child chính.</text>
+        <text x="576" y="472" fill="#343842" font-family="Helvetica Neue, Arial, sans-serif" font-size="13">Multi-row header được flatten; bảng chuyển môn tách “đã học” và “được chuyển”.</text>
+        <text x="576" y="496" fill="#343842" font-family="Helvetica Neue, Arial, sans-serif" font-size="13">Bảng qua trang được chấm điểm continuation rồi merge thành logical table.</text>
+        <text x="576" y="520" fill="#343842" font-family="Helvetica Neue, Arial, sans-serif" font-size="13">Mỗi row ban đầu là atomic unit để truy vấn từng mapping chính xác.</text>
+
+        <rect x="1056" y="384" width="440" height="164" rx="8" fill="#ededed" stroke="#b8bcc4" stroke-width="1"/>
+        <text x="1080" y="420" fill="#000000" font-family="Helvetica Neue, Arial, sans-serif" font-size="17" font-weight="700">Retrieval dùng child nhỏ + context lớn</text>
+        <text x="1080" y="448" fill="#343842" font-family="Helvetica Neue, Arial, sans-serif" font-size="13">Child chunks được embedding/search; parent không dùng zero vector.</text>
+        <text x="1080" y="472" fill="#343842" font-family="Helvetica Neue, Arial, sans-serif" font-size="13">Validator chặn missing parent, empty text, token overflow và table row thiếu table_id.</text>
+        <text x="1080" y="496" fill="#343842" font-family="Helvetica Neue, Arial, sans-serif" font-size="13">Search v2 filter record_type=child, dedup theo parent để tránh top-k bị lệch.</text>
+        <text x="1080" y="520" fill="#343842" font-family="Helvetica Neue, Arial, sans-serif" font-size="13">Adaptive expansion trả thêm table parent hoặc article parent khi cần trả lời.</text>
+
+        <!-- legend -->
+        <line x1="48" y1="592" x2="1496" y2="592" stroke="#b8bcc4" stroke-width="1"/>
+        <text x="48" y="624" fill="#5f6673" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11" font-weight="700" letter-spacing="0.12em">LEGEND</text>
+        <rect x="156" y="608" width="20" height="12" rx="3" fill="#ffffff" stroke="#b8bcc4" stroke-width="1"/>
+        <text x="184" y="619" fill="#343842" font-family="Helvetica Neue, Arial, sans-serif" font-size="12">stage thường</text>
+        <rect x="292" y="608" width="20" height="12" rx="3" fill="rgba(61,141,255,0.10)" stroke="#3d8dff" stroke-width="1"/>
+        <text x="320" y="619" fill="#343842" font-family="Helvetica Neue, Arial, sans-serif" font-size="12">stage trọng tâm semantic</text>
+        <line x1="492" y1="614" x2="536" y2="614" stroke="#5f6673" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <text x="548" y="619" fill="#343842" font-family="Helvetica Neue, Arial, sans-serif" font-size="12">luồng dữ liệu</text>
+        <line x1="672" y1="614" x2="716" y2="614" stroke="#3d8dff" stroke-width="1.6" marker-end="url(#arrow-accent)"/>
+        <text x="728" y="619" fill="#343842" font-family="Helvetica Neue, Arial, sans-serif" font-size="12">điểm chuyển representation quan trọng</text>
+        <text x="1056" y="619" fill="#5f6673" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11">skin: presentations / Codex Grid tokens</text>
+      </svg>
+    </section>
+
+    <section class="explain-grid" aria-label="Giải thích quy trình">
+      <article class="card">
+        <h2><span class="dot"></span> Vì sao không dùng chunk regex v1?</h2>
+        <ul>
+          <li>V1 đọc TXT và split theo <code>Điều x:</code>, nên mất layout, bảng, bbox, page và quan hệ parent-child.</li>
+          <li>V2 dùng OCR JSON làm nguồn chính, giữ cả <code>raw_text</code> để audit và <code>normalized_text</code> để parse.</li>
+          <li>Character threshold như <code>len(text) &gt; 3000</code> được thay bằng token counter thật của embedding model.</li>
+        </ul>
+      </article>
+
+      <article class="card">
+        <h2><span class="dot green"></span> Output cuối cùng gồm gì?</h2>
+        <ul>
+          <li><code>parent</code>: giữ context rộng như Điều, preamble, table parent; dùng để expand câu trả lời.</li>
+          <li><code>child</code>: đơn vị nhỏ, token-safe, có retrieval text đầy đủ metadata và được đưa vào vector search.</li>
+          <li>Payload có <code>section_path</code>, <code>chunk_type</code>, <code>page_start/page_end</code>, <code>source_block_ids</code>, <code>chunking_version=v2</code>.</li>
+        </ul>
+      </article>
+
+      <article class="card">
+        <h2><span class="dot orange"></span> Các chốt an toàn</h2>
+        <ul>
+          <li>Không tự sửa lỗi OCR pháp lý; không hallucinate ô bảng thiếu.</li>
+          <li>Không embed raw HTML table làm representation chính; table row được serialize theo schema.</li>
+          <li>Không silent truncation: validator kiểm tra token count thật trước khi embedding/upsert.</li>
+        </ul>
+      </article>
+    </section>
+
+    <p class="source-note">
+      Sources: services/chunking/CODE_MAP_CHUNKING_ANALYSIS.md · services/chunking/CHUNKING_V2_CODEX_SPEC.md ·
+      style tokens extracted from installed skill presentations/Codex Grid.
+    </p>
+  </main>
+</body>
+</html>

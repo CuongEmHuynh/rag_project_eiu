@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OCR JSON to Retrieval Chunks Flow</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --paper: #F1F7FD;
+      --panel: #FAFDFF;
+      --ink: #1D2A44;
+      --muted: #53657A;
+      --soft: #6D7F91;
+      --rule: #B8D2E8;
+      --accent: #374E9E;
+      --accent-tint: rgba(55, 78, 158, 0.08);
+      --font-sans: 'Geist', system-ui, sans-serif;
+      --font-serif: 'Instrument Serif', Georgia, serif;
+      --font-mono: 'Geist Mono', ui-monospace, monospace;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 40px 24px;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--font-sans);
+    }
+
+    .frame {
+      width: min(1240px, 100%);
+    }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0 0 24px;
+      color: var(--accent);
+      font-family: var(--font-serif);
+      font-size: clamp(28px, 3vw, 40px);
+      font-weight: 400;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+
+    svg {
+      display: block;
+      width: 100%;
+      min-width: 960px;
+      overflow: visible;
+    }
+
+    .scroll {
+      overflow-x: auto;
+      padding-bottom: 8px;
+    }
+  </style>
+</head>
+<body>
+  <main class="frame">
+    <p class="eyebrow">Flowchart · OCR pipeline</p>
+    <h1>OCR JSON to Retrieval Chunks Flow</h1>
+    <div class="scroll">
+      <svg viewBox="0 0 1200 820" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="ocr-chunking-flow-title ocr-chunking-flow-desc">
+        <title id="ocr-chunking-flow-title">OCR JSON to Retrieval Chunks Flow</title>
+        <desc id="ocr-chunking-flow-desc">Flow showing OCR JSON being parsed, normalized, structured, chunked, validated, and returned as retrieval chunks.</desc>
+        <defs>
+          <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#53657A"/>
+          </marker>
+          <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#374E9E"/>
+          </marker>
+          <marker id="arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#374E9E"/>
+          </marker>
+        </defs>
+
+        <rect width="1200" height="820" fill="#F1F7FD"/>
+
+        <!-- Main connectors are drawn before node groups. -->
+        <line x1="600" y1="188" x2="600" y2="228" stroke="#374E9E" stroke-width="1.2" marker-end="url(#arrow-accent)"/>
+        <line x1="600" y1="336" x2="600" y2="376" stroke="#53657A" stroke-width="1" marker-end="url(#arrow)"/>
+        <line x1="600" y1="484" x2="600" y2="524" stroke="#53657A" stroke-width="1" marker-end="url(#arrow)"/>
+        <line x1="600" y1="632" x2="600" y2="672" stroke="#374E9E" stroke-width="1.2" marker-end="url(#arrow-accent)"/>
+
+        <g aria-label="Phase one input cleanup">
+          <rect x="80" y="52" width="1040" height="136" rx="8" fill="#FAFDFF" stroke="#B8D2E8" stroke-width="1.2"/>
+          <rect x="104" y="76" width="132" height="24" rx="4" fill="rgba(55,78,158,0.08)" stroke="#B8D2E8" stroke-width="0.8"/>
+          <text x="120" y="92" fill="#374E9E" font-family="'Geist Mono', ui-monospace, monospace" font-size="8" font-weight="600" letter-spacing="0.14em">PHASE 01</text>
+          <text x="300" y="92" fill="#374E9E" font-family="'Geist', system-ui, sans-serif" font-size="16" font-weight="600">Input cleanup</text>
+
+          <line x1="316" y1="132" x2="372" y2="132" stroke="#53657A" stroke-width="1" marker-end="url(#arrow)"/>
+          <line x1="512" y1="132" x2="568" y2="132" stroke="#53657A" stroke-width="1" marker-end="url(#arrow)"/>
+          <line x1="708" y1="132" x2="764" y2="132" stroke="#53657A" stroke-width="1" marker-end="url(#arrow)"/>
+
+          <rect x="160" y="108" width="156" height="48" rx="6" fill="rgba(55,78,158,0.08)" stroke="#374E9E" stroke-width="1.2"/>
+          <text x="180" y="128" fill="#374E9E" font-family="'Geist Mono', ui-monospace, monospace" font-size="8" font-weight="600">01</text>
+          <text x="238" y="136" fill="#1D2A44" font-family="'Geist', system-ui, sans-serif" font-size="12" font-weight="600" text-anchor="middle">Load OCR JSON</text>
+
+          <rect x="372" y="108" width="140" height="48" rx="6" fill="#FFFFFF" stroke="#B8D2E8" stroke-width="1"/>
+          <text x="392" y="128" fill="#53657A" font-family="'Geist Mono', ui-monospace, monospace" font-size="8" font-weight="600">02</text>
+          <text x="442" y="136" fill="#1D2A44" font-family="'Geist', system-ui, sans-serif" font-size="12" font-weight="600" text-anchor="middle">Parse blocks</text>
+
+          <rect x="568" y="108" width="140" height="48" rx="6" fill="#FFFFFF" stroke="#B8D2E8" stroke-width="1"/>
+          <text x="588" y="128" fill="#53657A" font-family="'Geist Mono', ui-monospace, monospace" font-size="8" font-weight="600">03</text>
+          <text x="638" y="136" fill="#1D2A44" font-family="'Geist', system-ui, sans-serif" font-size="12" font-weight="600" text-anchor="middle">Normalize</text>
+
+          <rect x="764" y="108" width="176" height="48" rx="6" fill="#FFFFFF" stroke="#B8D2E8" stroke-width="1"/>
+          <text x="784" y="128" fill="#53657A" font-family="'Geist Mono', ui-monospace, monospace" font-size="8" font-weight="600">04</text>
+          <text x="852" y="136" fill="#1D2A44" font-family="'Geist', system-ui, sans-serif" font-size="12" font-weight="600" text-anchor="middle">Filter obvious noise</text>
+        </g>
+
+        <g aria-label="Phase two reading structure">
+          <rect x="80" y="228" width="1040" height="108" rx="8" fill="#FAFDFF" stroke="#B8D2E8" stroke-width="1.2"/>
+          <rect x="104" y="252" width="132" height="24" rx="4" fill="rgba(55,78,158,0.08)" stroke="#B8D2E8" stroke-width="0.8"/>
+          <text x="120" y="268" fill="#374E9E" font-family="'Geist Mono', ui-monospace, monospace" font-size="8" font-weight="600" letter-spacing="0.14em">PHASE 02</text>
+          <text x="300" y="268" fill="#374E9E" font-family="'Geist', system-ui, sans-serif" font-size="16" font-weight="600">Reading structure</text>
+
+          <line x1="400" y1="304" x2="456" y2="304" stroke="#53657A" stroke-width="1" marker-end="url(#arrow)"/>
+          <line x1="640" y1="304" x2="696" y2="304" stroke="#53657A" stroke-width="1" marker-end="url(#arrow)"/>
+
+          <rect x="204" y="280" width="196" height="48" rx="6" fill="#FFFFFF" stroke="#B8D2E8" stroke-width="1"/>
+          <text x="224" y="300" fill="#53657A" font-family="'Geist Mono', ui-monospace, monospace" font-size="8" font-weight="600">05</text>
+          <text x="302" y="308" fill="#1D2A44" font-family="'Geist', system-ui, sans-serif" font-size="12" font-weight="600" text-anchor="middle">Sort reading order</text>
+
+          <rect x="456" y="280" width="184" height="48" rx="6" fill="#FFFFFF" stroke="#B8D2E8" stroke-width="1"/>
+          <text x="476" y="300" fill="#53657A" font-family="'Geist Mono', ui-monospace, monospace" font-size="8" font-weight="600">06</text>
+          <text x="548" y="300" fill="#1D2A44" font-family="'Geist', system-ui, sans-serif" font-size="12" font-weight="600" text-anchor="middle">Detect document</text>
+          <text x="548" y="316" fill="#1D2A44" font-family="'Geist', system-ui, sans-serif" font-size="12" font-weight="600" text-anchor="middle">structure</text>
+
+          <rect x="696" y="280" width="220" height="48" rx="6" fill="#FFFFFF" stroke="#B8D2E8" stroke-width="1"/>
+          <text x="716" y="300" fill="#53657A" font-family="'Geist Mono', ui-monospace, monospace" font-size="8" font-weight="600">07</text>
+          <text x="806" y="300" fill="#1D2A44" font-family="'Geist', system-ui, sans-serif" font-size="12" font-weight="600" text-anchor="middle">Reconstruct cross-page</text>
+          <text x="806" y="316" fill="#1D2A44" font-family="'Geist', system-ui, sans-serif" font-size="12" font-weight="600" text-anchor="middle">tables</text>
+        </g>
+
+        <g aria-label="Phase three tree and atomic units">
+          <rect x="80" y="376" width="1040" height="108" rx="8" fill="#FAFDFF" stroke="#B8D2E8" stroke-width="1.2"/>
+          <rect x="104" y="400" width="132" height="24" rx="4" fill="rgba(55,78,158,0.08)" stroke="#B8D2E8" stroke-width="0.8"/>
+          <text x="120" y="416" fill="#374E9E" font-family="'Geist Mono', ui-monospace, monospace" font-size="8" font-weight="600" letter-spacing="0.14em">PHASE 03</text>
+          <text x="300" y="416" fill="#374E9E" font-family="'Geist', system-ui, sans-serif" font-size="16" font-weight="600">Tree and atomic units</text>
+
+          <line x1="400" y1="452" x2="456" y2="452" stroke="#53657A" stroke-width="1" marker-end="url(#arrow)"/>
+          <line x1="640" y1="452" x2="696" y2="452" stroke="#53657A" stroke-width="1" marker-end="url(#arrow)"/>
+
+          <rect x="204" y="428" width="196" height="48" rx="6" fill="#FFFFFF" stroke="#B8D2E8" stroke-width="1"/>
+          <text x="224" y="448" fill="#53657A" font-family="'Geist Mono', ui-monospace, monospace" font-size="8" font-weight="600">08</text>
+          <text x="302" y="456" fill="#1D2A44" font-family="'Geist', system-ui, sans-serif" font-size="12" font-weight="600" text-anchor="middle">Build document tree</text>
+
+          <rect x="456" y="428" width="184" height="48" rx="6" fill="#FFFFFF" stroke="#B8D2E8" stroke-width="1"/>
+          <text x="476" y="448" fill="#53657A" font-family="'Geist Mono', ui-monospace, monospace" font-size="8" font-weight="600">09</text>
+          <text x="548" y="456" fill="#1D2A44" font-family="'Geist', system-ui, sans-serif" font-size="12" font-weight="600" text-anchor="middle">Create atomic units</text>
+
+          <rect x="696" y="428" width="220" height="48" rx="6" fill="#FFFFFF" stroke="#B8D2E8" stroke-width="1"/>
+          <text x="716" y="448" fill="#53657A" font-family="'Geist Mono', ui-monospace, monospace" font-size="8" font-weight="600">10</text>
+          <text x="806" y="456" fill="#1D2A44" font-family="'Geist', system-ui, sans-serif" font-size="12" font-weight="600" text-anchor="middle">Token-aware packing</text>
+        </g>
+
+        <g aria-label="Phase four retrieval chunks">
+          <rect x="80" y="524" width="1040" height="108" rx="8" fill="#FAFDFF" stroke="#B8D2E8" stroke-width="1.2"/>
+          <rect x="104" y="548" width="132" height="24" rx="4" fill="rgba(55,78,158,0.08)" stroke="#B8D2E8" stroke-width="0.8"/>
+          <text x="120" y="564" fill="#374E9E" font-family="'Geist Mono', ui-monospace, monospace" font-size="8" font-weight="600" letter-spacing="0.14em">PHASE 04</text>
+          <text x="300" y="564" fill="#374E9E" font-family="'Geist', system-ui, sans-serif" font-size="16" font-weight="600">Chunk construction</text>
+
+          <line x1="316" y1="600" x2="372" y2="600" stroke="#53657A" stroke-width="1" marker-end="url(#arrow)"/>
+          <line x1="512" y1="600" x2="568" y2="600" stroke="#53657A" stroke-width="1" marker-end="url(#arrow)"/>
+          <line x1="708" y1="600" x2="764" y2="600" stroke="#53657A" stroke-width="1" marker-end="url(#arrow)"/>
+
+          <rect x="160" y="576" width="156" height="48" rx="6" fill="#FFFFFF" stroke="#B8D2E8" stroke-width="1"/>
+          <text x="180" y="596" fill="#53657A" font-family="'Geist Mono', ui-monospace, monospace" font-size="8" font-weight="600">11</text>
+          <text x="238" y="604" fill="#1D2A44" font-family="'Geist', system-ui, sans-serif" font-size="12" font-weight="600" text-anchor="middle">Build parent chunks</text>
+
+          <rect x="372" y="576" width="140" height="48" rx="6" fill="#FFFFFF" stroke="#B8D2E8" stroke-width="1"/>
+          <text x="392" y="596" fill="#53657A" font-family="'Geist Mono', ui-monospace, monospace" font-size="8" font-weight="600">12</text>
+          <text x="442" y="596" fill="#1D2A44" font-family="'Geist', system-ui, sans-serif" font-size="12" font-weight="600" text-anchor="middle">Build child</text>
+          <text x="442" y="612" fill="#1D2A44" font-family="'Geist', system-ui, sans-serif" font-size="12" font-weight="600" text-anchor="middle">chunks</text>
+
+          <rect x="568" y="576" width="140" height="48" rx="6" fill="#FFFFFF" stroke="#B8D2E8" stroke-width="1"/>
+          <text x="588" y="596" fill="#53657A" font-family="'Geist Mono', ui-monospace, monospace" font-size="8" font-weight="600">13</text>
+          <text x="638" y="596" fill="#1D2A44" font-family="'Geist', system-ui, sans-serif" font-size="12" font-weight="600" text-anchor="middle">Build</text>
+          <text x="638" y="612" fill="#1D2A44" font-family="'Geist Mono', ui-monospace, monospace" font-size="10" font-weight="600" text-anchor="middle">retrieval_text</text>
+
+          <rect x="764" y="576" width="176" height="48" rx="6" fill="rgba(55,78,158,0.08)" stroke="#374E9E" stroke-width="1.2"/>
+          <text x="784" y="596" fill="#374E9E" font-family="'Geist Mono', ui-monospace, monospace" font-size="8" font-weight="600">14</text>
+          <text x="852" y="596" fill="#1D2A44" font-family="'Geist', system-ui, sans-serif" font-size="12" font-weight="600" text-anchor="middle">Validate</text>
+          <text x="852" y="612" fill="#1D2A44" font-family="'Geist', system-ui, sans-serif" font-size="12" font-weight="600" text-anchor="middle">chunks</text>
+        </g>
+
+        <g aria-label="Return chunks">
+          <rect x="492" y="672" width="216" height="60" rx="24" fill="#374E9E" stroke="#374E9E" stroke-width="1.2"/>
+          <text x="600" y="696" fill="#FFFFFF" font-family="'Geist Mono', ui-monospace, monospace" font-size="8" font-weight="600" letter-spacing="0.14em" text-anchor="middle">OUTPUT</text>
+          <text x="600" y="716" fill="#FFFFFF" font-family="'Geist', system-ui, sans-serif" font-size="16" font-weight="600" text-anchor="middle">Return chunks</text>
+        </g>
+
+        <line x1="80" y1="772" x2="1120" y2="772" stroke="rgba(55,78,158,0.18)" stroke-width="0.8"/>
+        <text x="80" y="796" fill="#53657A" font-family="'Geist Mono', ui-monospace, monospace" font-size="8" font-weight="500" letter-spacing="0.14em">LEGEND</text>
+        <rect x="176" y="784" width="28" height="12" rx="2" fill="rgba(55,78,158,0.08)" stroke="#374E9E" stroke-width="1"/>
+        <text x="216" y="796" fill="#53657A" font-family="'Geist Mono', ui-monospace, monospace" font-size="8">focal start/end</text>
+        <rect x="392" y="784" width="28" height="12" rx="2" fill="#FFFFFF" stroke="#B8D2E8" stroke-width="1"/>
+        <text x="432" y="796" fill="#53657A" font-family="'Geist Mono', ui-monospace, monospace" font-size="8">processing step</text>
+        <line x1="624" y1="790" x2="672" y2="790" stroke="#53657A" stroke-width="1" marker-end="url(#arrow)"/>
+        <text x="692" y="796" fill="#53657A" font-family="'Geist Mono', ui-monospace, monospace" font-size="8">ordered handoff</text>
+      </svg>
+    </div>
+  </main>
+</body>
+</html>

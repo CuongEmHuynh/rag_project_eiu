@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SAHC-v2 Horizontal Chunking Flow</title>
+  <style>
+    :root {
+      --paper: #ffffff;
+      --ink: #000000;
+      --panel: #ededed;
+      --rule: #b8bcc4;
+      --muted: #5f6673;
+      --accent: #3d8dff;
+      --green: #00a240;
+      --font-sans: "Helvetica Neue", Arial, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--font-sans);
+    }
+
+    main {
+      width: min(1560px, calc(100vw - 48px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      color: var(--accent);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0 0 28px;
+      font-size: clamp(32px, 4vw, 48px);
+      line-height: 1.04;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+
+    .figure-shell {
+      overflow-x: auto;
+      border: 1px solid rgba(184, 188, 196, 0.72);
+      border-radius: 8px;
+      background: #fbfbfb;
+    }
+
+    svg {
+      display: block;
+      min-width: 3680px;
+      width: 100%;
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="eyebrow">SAHC-v2 / HORIZONTAL FLOW</p>
+    <h1>Flow ngang thực hiện chunking</h1>
+
+    <section class="figure-shell" aria-label="Flow ngang thực hiện chunking">
+      <svg viewBox="0 0 3680 760" role="img" aria-labelledby="horizontal-flow-title horizontal-flow-desc" xmlns="http://www.w3.org/2000/svg">
+        <title id="horizontal-flow-title">Flow ngang SAHC-v2 chunking</title>
+        <desc id="horizontal-flow-desc">Flow ngang từ load OCR JSON đến return chunks, có nhánh table và non-table ở bước detect document structure.</desc>
+        <defs>
+          <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#5f6673"/>
+          </marker>
+          <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#3d8dff"/>
+          </marker>
+          <marker id="arrow-green" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#00a240"/>
+          </marker>
+          <pattern id="grid" width="24" height="24" patternUnits="userSpaceOnUse">
+            <path d="M 24 0 L 0 0 0 24" fill="none" stroke="rgba(0,0,0,0.04)" stroke-width="1"/>
+          </pattern>
+        </defs>
+
+        <rect width="3680" height="760" fill="#ffffff"/>
+        <rect width="3680" height="760" fill="url(#grid)" opacity="0.55"/>
+
+        <text x="48" y="56" fill="#3d8dff" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="12" font-weight="700" letter-spacing="0.14em">CHUNKING PIPELINE</text>
+        <text x="48" y="88" fill="#000000" font-family="Helvetica Neue, Arial, sans-serif" font-size="28" font-weight="700">OCR JSON to validated chunks</text>
+        <text x="48" y="116" fill="#5f6673" font-family="Helvetica Neue, Arial, sans-serif" font-size="15">Bước 6-8 tách rõ: non-table đi nhánh prose/structure; table đi nhánh parse + reconstruct rồi nhập lại ở document tree.</text>
+
+        <!-- Main connectors before nodes -->
+        <line x1="196" y1="280" x2="228" y2="280" stroke="#5f6673" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <line x1="376" y1="280" x2="408" y2="280" stroke="#5f6673" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <line x1="556" y1="280" x2="588" y2="280" stroke="#5f6673" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <line x1="736" y1="280" x2="768" y2="280" stroke="#5f6673" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <line x1="916" y1="280" x2="948" y2="280" stroke="#5f6673" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <line x1="1124" y1="280" x2="1180" y2="280" stroke="#3d8dff" stroke-width="1.6" marker-end="url(#arrow-accent)"/>
+
+        <!-- Branch connectors around decision -->
+        <path d="M 1220 240 V 184 Q 1220 176 1228 176 H 1320" fill="none" stroke="#3d8dff" stroke-width="1.6" marker-end="url(#arrow-accent)"/>
+        <path d="M 1220 320 V 424 Q 1220 432 1228 432 H 1320" fill="none" stroke="#3d8dff" stroke-width="1.6" marker-end="url(#arrow-accent)"/>
+        <rect x="1232" y="144" width="76" height="18" rx="3" fill="#ffffff"/>
+        <text x="1270" y="157" text-anchor="middle" fill="#3d8dff" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="9" font-weight="700">NON-TABLE</text>
+        <rect x="1248" y="396" width="48" height="18" rx="3" fill="#ffffff"/>
+        <text x="1272" y="409" text-anchor="middle" fill="#3d8dff" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="9" font-weight="700">TABLE</text>
+
+        <line x1="1528" y1="176" x2="1580" y2="176" stroke="#3d8dff" stroke-width="1.6" marker-end="url(#arrow-accent)"/>
+        <line x1="1528" y1="432" x2="1580" y2="432" stroke="#3d8dff" stroke-width="1.6" marker-end="url(#arrow-accent)"/>
+        <path d="M 1796 176 H 1848 Q 1856 176 1856 184 V 264 Q 1856 272 1864 272 H 1880" fill="none" stroke="#3d8dff" stroke-width="1.6" marker-end="url(#arrow-accent)"/>
+        <path d="M 1796 432 H 1848 Q 1856 432 1856 424 V 304 Q 1856 296 1864 296 H 1880" fill="none" stroke="#3d8dff" stroke-width="1.6" marker-end="url(#arrow-accent)"/>
+
+        <!-- Main continuation connectors -->
+        <line x1="2056" y1="280" x2="2104" y2="280" stroke="#5f6673" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <line x1="2280" y1="280" x2="2328" y2="280" stroke="#5f6673" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <line x1="2504" y1="280" x2="2552" y2="280" stroke="#5f6673" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <line x1="2728" y1="280" x2="2776" y2="280" stroke="#5f6673" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <line x1="2952" y1="280" x2="3000" y2="280" stroke="#5f6673" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <line x1="3176" y1="280" x2="3224" y2="280" stroke="#5f6673" stroke-width="1.2" marker-end="url(#arrow)"/>
+        <line x1="3400" y1="280" x2="3448" y2="280" stroke="#00a240" stroke-width="1.6" marker-end="url(#arrow-green)"/>
+
+        <!-- Main nodes -->
+        <rect x="48" y="252" width="148" height="56" rx="8" fill="#ffffff" stroke="#b8bcc4" stroke-width="1"/>
+        <rect x="60" y="268" width="32" height="16" rx="3" fill="rgba(61,141,255,0.12)" stroke="rgba(61,141,255,0.35)" stroke-width="0.8"/>
+        <text x="76" y="280" text-anchor="middle" fill="#3d8dff" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="9" font-weight="700">01</text>
+        <text x="122" y="284" text-anchor="middle" fill="#000000" font-family="Helvetica Neue, Arial, sans-serif" font-size="13" font-weight="700">load OCR JSON</text>
+
+        <rect x="228" y="252" width="148" height="56" rx="8" fill="#ffffff" stroke="#b8bcc4" stroke-width="1"/>
+        <rect x="240" y="268" width="32" height="16" rx="3" fill="rgba(61,141,255,0.12)" stroke="rgba(61,141,255,0.35)" stroke-width="0.8"/>
+        <text x="256" y="280" text-anchor="middle" fill="#3d8dff" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="9" font-weight="700">02</text>
+        <text x="302" y="284" text-anchor="middle" fill="#000000" font-family="Helvetica Neue, Arial, sans-serif" font-size="13" font-weight="700">parse blocks</text>
+
+        <rect x="408" y="252" width="148" height="56" rx="8" fill="#ffffff" stroke="#b8bcc4" stroke-width="1"/>
+        <rect x="420" y="268" width="32" height="16" rx="3" fill="rgba(61,141,255,0.12)" stroke="rgba(61,141,255,0.35)" stroke-width="0.8"/>
+        <text x="436" y="280" text-anchor="middle" fill="#3d8dff" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="9" font-weight="700">03</text>
+        <text x="482" y="284" text-anchor="middle" fill="#000000" font-family="Helvetica Neue, Arial, sans-serif" font-size="13" font-weight="700">normalize</text>
+
+        <rect x="588" y="252" width="148" height="56" rx="8" fill="#ffffff" stroke="#b8bcc4" stroke-width="1"/>
+        <rect x="600" y="268" width="32" height="16" rx="3" fill="rgba(61,141,255,0.12)" stroke="rgba(61,141,255,0.35)" stroke-width="0.8"/>
+        <text x="616" y="280" text-anchor="middle" fill="#3d8dff" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="9" font-weight="700">04</text>
+        <text x="662" y="277" text-anchor="middle" fill="#000000" font-family="Helvetica Neue, Arial, sans-serif" font-size="12" font-weight="700">filter obvious</text>
+        <text x="662" y="292" text-anchor="middle" fill="#000000" font-family="Helvetica Neue, Arial, sans-serif" font-size="12" font-weight="700">noise</text>
+
+        <rect x="768" y="252" width="148" height="56" rx="8" fill="#ffffff" stroke="#b8bcc4" stroke-width="1"/>
+        <rect x="780" y="268" width="32" height="16" rx="3" fill="rgba(61,141,255,0.12)" stroke="rgba(61,141,255,0.35)" stroke-width="0.8"/>
+        <text x="796" y="280" text-anchor="middle" fill="#3d8dff" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="9" font-weight="700">05</text>
+        <text x="842" y="277" text-anchor="middle" fill="#000000" font-family="Helvetica Neue, Arial, sans-serif" font-size="12" font-weight="700">sort reading</text>
+        <text x="842" y="292" text-anchor="middle" fill="#000000" font-family="Helvetica Neue, Arial, sans-serif" font-size="12" font-weight="700">order</text>
+
+        <rect x="948" y="248" width="176" height="64" rx="8" fill="rgba(61,141,255,0.10)" stroke="#3d8dff" stroke-width="1.2"/>
+        <rect x="960" y="268" width="32" height="16" rx="3" fill="#3d8dff"/>
+        <text x="976" y="280" text-anchor="middle" fill="#ffffff" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="9" font-weight="700">06</text>
+        <text x="1036" y="277" text-anchor="middle" fill="#000000" font-family="Helvetica Neue, Arial, sans-serif" font-size="12" font-weight="700">detect document</text>
+        <text x="1036" y="292" text-anchor="middle" fill="#000000" font-family="Helvetica Neue, Arial, sans-serif" font-size="12" font-weight="700">structure</text>
+
+        <!-- Decision diamond -->
+        <path d="M 1220 240 L 1260 280 L 1220 320 L 1180 280 Z" fill="#ffffff" stroke="#3d8dff" stroke-width="1.2"/>
+        <text x="1220" y="276" text-anchor="middle" fill="#000000" font-family="Helvetica Neue, Arial, sans-serif" font-size="12" font-weight="700">block</text>
+        <text x="1220" y="291" text-anchor="middle" fill="#000000" font-family="Helvetica Neue, Arial, sans-serif" font-size="12" font-weight="700">is table?</text>
+
+        <!-- Branch detail nodes -->
+        <rect x="1320" y="144" width="208" height="64" rx="8" fill="#ffffff" stroke="#b8bcc4" stroke-width="1"/>
+        <text x="1424" y="170" text-anchor="middle" fill="#000000" font-family="Helvetica Neue, Arial, sans-serif" font-size="13" font-weight="700">Non-table blocks</text>
+        <text x="1424" y="190" text-anchor="middle" fill="#5f6673" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="9">title/text/figure_caption</text>
+
+        <rect x="1580" y="144" width="216" height="64" rx="8" fill="#ffffff" stroke="#b8bcc4" stroke-width="1"/>
+        <text x="1688" y="170" text-anchor="middle" fill="#000000" font-family="Helvetica Neue, Arial, sans-serif" font-size="13" font-weight="700">Create prose nodes</text>
+        <text x="1688" y="190" text-anchor="middle" fill="#5f6673" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="9">article/clause/point/paragraph</text>
+
+        <rect x="1320" y="400" width="208" height="64" rx="8" fill="rgba(61,141,255,0.10)" stroke="#3d8dff" stroke-width="1.2"/>
+        <text x="1424" y="426" text-anchor="middle" fill="#000000" font-family="Helvetica Neue, Arial, sans-serif" font-size="13" font-weight="700">Table blocks</text>
+        <text x="1424" y="446" text-anchor="middle" fill="#3d8dff" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="9">parse HTML + flatten headers</text>
+
+        <rect x="1580" y="400" width="216" height="64" rx="8" fill="rgba(61,141,255,0.10)" stroke="#3d8dff" stroke-width="1.2"/>
+        <rect x="1592" y="420" width="32" height="16" rx="3" fill="#3d8dff"/>
+        <text x="1608" y="432" text-anchor="middle" fill="#ffffff" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="9" font-weight="700">07</text>
+        <text x="1692" y="426" text-anchor="middle" fill="#000000" font-family="Helvetica Neue, Arial, sans-serif" font-size="13" font-weight="700">reconstruct tables</text>
+        <text x="1692" y="446" text-anchor="middle" fill="#3d8dff" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="9">merge cross-page logical table</text>
+
+        <rect x="1880" y="248" width="176" height="64" rx="8" fill="rgba(61,141,255,0.10)" stroke="#3d8dff" stroke-width="1.2"/>
+        <rect x="1892" y="268" width="32" height="16" rx="3" fill="#3d8dff"/>
+        <text x="1908" y="280" text-anchor="middle" fill="#ffffff" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="9" font-weight="700">08</text>
+        <text x="1968" y="277" text-anchor="middle" fill="#000000" font-family="Helvetica Neue, Arial, sans-serif" font-size="12" font-weight="700">build document</text>
+        <text x="1968" y="292" text-anchor="middle" fill="#000000" font-family="Helvetica Neue, Arial, sans-serif" font-size="12" font-weight="700">tree</text>
+
+        <rect x="2104" y="252" width="176" height="56" rx="8" fill="#ffffff" stroke="#b8bcc4" stroke-width="1"/>
+        <rect x="2116" y="268" width="32" height="16" rx="3" fill="rgba(61,141,255,0.12)" stroke="rgba(61,141,255,0.35)" stroke-width="0.8"/>
+        <text x="2132" y="280" text-anchor="middle" fill="#3d8dff" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="9" font-weight="700">09</text>
+        <text x="2192" y="277" text-anchor="middle" fill="#000000" font-family="Helvetica Neue, Arial, sans-serif" font-size="12" font-weight="700">create atomic</text>
+        <text x="2192" y="292" text-anchor="middle" fill="#000000" font-family="Helvetica Neue, Arial, sans-serif" font-size="12" font-weight="700">units</text>
+
+        <rect x="2328" y="252" width="176" height="56" rx="8" fill="#ffffff" stroke="#b8bcc4" stroke-width="1"/>
+        <rect x="2340" y="268" width="32" height="16" rx="3" fill="rgba(61,141,255,0.12)" stroke="rgba(61,141,255,0.35)" stroke-width="0.8"/>
+        <text x="2356" y="280" text-anchor="middle" fill="#3d8dff" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="9" font-weight="700">10</text>
+        <text x="2416" y="277" text-anchor="middle" fill="#000000" font-family="Helvetica Neue, Arial, sans-serif" font-size="12" font-weight="700">token-aware</text>
+        <text x="2416" y="292" text-anchor="middle" fill="#000000" font-family="Helvetica Neue, Arial, sans-serif" font-size="12" font-weight="700">packing</text>
+
+        <rect x="2552" y="252" width="176" height="56" rx="8" fill="#ffffff" stroke="#b8bcc4" stroke-width="1"/>
+        <rect x="2564" y="268" width="32" height="16" rx="3" fill="rgba(61,141,255,0.12)" stroke="rgba(61,141,255,0.35)" stroke-width="0.8"/>
+        <text x="2580" y="280" text-anchor="middle" fill="#3d8dff" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="9" font-weight="700">11</text>
+        <text x="2640" y="277" text-anchor="middle" fill="#000000" font-family="Helvetica Neue, Arial, sans-serif" font-size="12" font-weight="700">build parent</text>
+        <text x="2640" y="292" text-anchor="middle" fill="#000000" font-family="Helvetica Neue, Arial, sans-serif" font-size="12" font-weight="700">chunks</text>
+
+        <rect x="2776" y="252" width="176" height="56" rx="8" fill="#ffffff" stroke="#b8bcc4" stroke-width="1"/>
+        <rect x="2788" y="268" width="32" height="16" rx="3" fill="rgba(61,141,255,0.12)" stroke="rgba(61,141,255,0.35)" stroke-width="0.8"/>
+        <text x="2804" y="280" text-anchor="middle" fill="#3d8dff" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="9" font-weight="700">12</text>
+        <text x="2864" y="277" text-anchor="middle" fill="#000000" font-family="Helvetica Neue, Arial, sans-serif" font-size="12" font-weight="700">build child</text>
+        <text x="2864" y="292" text-anchor="middle" fill="#000000" font-family="Helvetica Neue, Arial, sans-serif" font-size="12" font-weight="700">chunks</text>
+
+        <rect x="3000" y="252" width="176" height="56" rx="8" fill="#ffffff" stroke="#b8bcc4" stroke-width="1"/>
+        <rect x="3012" y="268" width="32" height="16" rx="3" fill="rgba(61,141,255,0.12)" stroke="rgba(61,141,255,0.35)" stroke-width="0.8"/>
+        <text x="3028" y="280" text-anchor="middle" fill="#3d8dff" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="9" font-weight="700">13</text>
+        <text x="3088" y="284" text-anchor="middle" fill="#000000" font-family="Helvetica Neue, Arial, sans-serif" font-size="12" font-weight="700">build retrieval_text</text>
+
+        <rect x="3224" y="252" width="176" height="56" rx="8" fill="#ffffff" stroke="#b8bcc4" stroke-width="1"/>
+        <rect x="3236" y="268" width="32" height="16" rx="3" fill="rgba(61,141,255,0.12)" stroke="rgba(61,141,255,0.35)" stroke-width="0.8"/>
+        <text x="3252" y="280" text-anchor="middle" fill="#3d8dff" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="9" font-weight="700">14</text>
+        <text x="3312" y="284" text-anchor="middle" fill="#000000" font-family="Helvetica Neue, Arial, sans-serif" font-size="13" font-weight="700">validate</text>
+
+        <rect x="3448" y="252" width="176" height="56" rx="8" fill="rgba(0,162,64,0.10)" stroke="#00a240" stroke-width="1.2"/>
+        <rect x="3460" y="268" width="32" height="16" rx="3" fill="#00a240"/>
+        <text x="3476" y="280" text-anchor="middle" fill="#ffffff" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="9" font-weight="700">15</text>
+        <text x="3536" y="284" text-anchor="middle" fill="#000000" font-family="Helvetica Neue, Arial, sans-serif" font-size="13" font-weight="700">return chunks</text>
+
+        <!-- Route captions -->
+        <rect x="1296" y="528" width="560" height="72" rx="8" fill="#ffffff" stroke="#b8bcc4" stroke-width="1"/>
+        <text x="1320" y="556" fill="#000000" font-family="Helvetica Neue, Arial, sans-serif" font-size="14" font-weight="700">Luồng non-table</text>
+        <text x="1460" y="556" fill="#5f6673" font-family="Helvetica Neue, Arial, sans-serif" font-size="13">text/title/caption -> prose nodes -> document tree</text>
+        <text x="1320" y="580" fill="#000000" font-family="Helvetica Neue, Arial, sans-serif" font-size="14" font-weight="700">Luồng table</text>
+        <text x="1460" y="580" fill="#5f6673" font-family="Helvetica Neue, Arial, sans-serif" font-size="13">table block -> parse HTML/schema -> merge cross-page -> document tree</text>
+
+        <line x1="48" y1="660" x2="3624" y2="660" stroke="#b8bcc4" stroke-width="1"/>
+        <text x="48" y="692" fill="#5f6673" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11">style: Codex Grid tokens · horizontal layout · branch connectors have separate routes and attach points</text>
+      </svg>
+    </section>
+  </main>
+</body>
+</html>

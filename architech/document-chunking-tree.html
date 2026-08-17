@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document Chunking Tree</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --paper: #F1F7FD;
+      --panel: #FAFDFF;
+      --ink: #1D2A44;
+      --muted: #53657A;
+      --soft: #6D7F91;
+      --rule: #B8D2E8;
+      --accent: #374E9E;
+      --accent-tint: rgba(55, 78, 158, 0.08);
+      --font-sans: 'Geist', system-ui, sans-serif;
+      --font-serif: 'Instrument Serif', Georgia, serif;
+      --font-mono: 'Geist Mono', ui-monospace, monospace;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 40px 24px;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--font-sans);
+    }
+
+    .frame {
+      width: min(1240px, 100%);
+    }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0 0 24px;
+      color: var(--accent);
+      font-family: var(--font-serif);
+      font-size: clamp(28px, 3vw, 40px);
+      font-weight: 400;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+
+    svg {
+      display: block;
+      width: 100%;
+      min-width: 960px;
+      overflow: visible;
+    }
+
+    .scroll {
+      overflow-x: auto;
+      padding-bottom: 8px;
+    }
+  </style>
+</head>
+<body>
+  <main class="frame">
+    <p class="eyebrow">Tree / Hierarchy · Document chunking</p>
+    <h1>Document Chunking Architecture</h1>
+    <div class="scroll">
+      <svg viewBox="0 0 1200 780" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="document-chunking-tree-title document-chunking-tree-desc">
+        <title id="document-chunking-tree-title">Document Chunking Tree</title>
+        <desc id="document-chunking-tree-desc">Hierarchy showing a document split into metadata, preamble, decision, recipients, signature, and lower-level article, paragraph, and table chunks.</desc>
+        <defs>
+          <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#53657A"/>
+          </marker>
+          <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#374E9E"/>
+          </marker>
+          <marker id="arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#374E9E"/>
+          </marker>
+        </defs>
+
+        <rect width="1200" height="780" fill="#F1F7FD"/>
+
+        <!-- Connectors: orthogonal tree buses, drawn before nodes. -->
+        <path d="M 232 380 H 260 M 260 108 V 668 M 260 108 H 300 M 260 224 H 300 M 260 380 H 300 M 260 572 H 300 M 260 668 H 300" fill="none" stroke="#53657A" stroke-width="1"/>
+        <path d="M 468 224 H 512 M 512 176 V 272 M 512 176 H 548 M 512 224 H 548 M 512 272 H 548" fill="none" stroke="#53657A" stroke-width="1"/>
+        <path d="M 468 380 H 512 M 512 328 V 476 M 512 328 H 548 M 512 380 H 548 M 512 476 H 548" fill="none" stroke="#53657A" stroke-width="1"/>
+        <path d="M 728 328 H 772 M 772 328 V 424 M 772 328 H 808 M 772 376 H 808 M 772 424 H 808" fill="none" stroke="#53657A" stroke-width="1"/>
+
+        <!-- Root. -->
+        <g aria-label="Document root chunk">
+          <rect x="72" y="352" width="160" height="56" rx="6" fill="#F1F7FD"/>
+          <rect x="72" y="352" width="160" height="56" rx="6" fill="rgba(55,78,158,0.08)" stroke="#374E9E" stroke-width="1.2"/>
+          <rect x="84" y="360" width="48" height="16" rx="2" fill="transparent" stroke="rgba(55,78,158,0.40)" stroke-width="0.8"/>
+          <text x="108" y="372" fill="#374E9E" font-family="'Geist Mono', ui-monospace, monospace" font-size="8" font-weight="600" text-anchor="middle" letter-spacing="0.08em">ROOT</text>
+          <text x="152" y="392" fill="#1D2A44" font-family="'Geist', system-ui, sans-serif" font-size="12" font-weight="600" text-anchor="middle">DOCUMENT</text>
+        </g>
+
+        <!-- Level 1: document sections. -->
+        <g aria-label="Metadata section">
+          <rect x="300" y="84" width="168" height="48" rx="6" fill="#F1F7FD"/>
+          <rect x="300" y="84" width="168" height="48" rx="6" fill="#FFFFFF" stroke="#B8D2E8" stroke-width="1"/>
+          <rect x="312" y="92" width="32" height="12" rx="2" fill="transparent" stroke="rgba(83,101,122,0.40)" stroke-width="0.8"/>
+          <text x="328" y="101" fill="#53657A" font-family="'Geist Mono', ui-monospace, monospace" font-size="8" font-weight="600" text-anchor="middle">SEC</text>
+          <text x="384" y="116" fill="#1D2A44" font-family="'Geist', system-ui, sans-serif" font-size="12" font-weight="600" text-anchor="middle">METADATA</text>
+        </g>
+
+        <g aria-label="Preamble parent chunk">
+          <rect x="300" y="200" width="168" height="48" rx="6" fill="#F1F7FD"/>
+          <rect x="300" y="200" width="168" height="48" rx="6" fill="#FFFFFF" stroke="#B8D2E8" stroke-width="1"/>
+          <rect x="312" y="208" width="36" height="12" rx="2" fill="transparent" stroke="rgba(83,101,122,0.40)" stroke-width="0.8"/>
+          <text x="330" y="217" fill="#53657A" font-family="'Geist Mono', ui-monospace, monospace" font-size="8" font-weight="600" text-anchor="middle">PAR</text>
+          <text x="384" y="228" fill="#1D2A44" font-family="'Geist', system-ui, sans-serif" font-size="12" font-weight="600" text-anchor="middle">PREAMBLE</text>
+          <text x="384" y="240" fill="#53657A" font-family="'Geist Mono', ui-monospace, monospace" font-size="8" text-anchor="middle">parent chunk</text>
+        </g>
+
+        <g aria-label="Decision parent chunk">
+          <rect x="300" y="356" width="168" height="48" rx="6" fill="#F1F7FD"/>
+          <rect x="300" y="356" width="168" height="48" rx="6" fill="#FFFFFF" stroke="#B8D2E8" stroke-width="1"/>
+          <rect x="312" y="364" width="36" height="12" rx="2" fill="transparent" stroke="rgba(83,101,122,0.40)" stroke-width="0.8"/>
+          <text x="330" y="373" fill="#53657A" font-family="'Geist Mono', ui-monospace, monospace" font-size="8" font-weight="600" text-anchor="middle">PAR</text>
+          <text x="384" y="384" fill="#1D2A44" font-family="'Geist', system-ui, sans-serif" font-size="12" font-weight="600" text-anchor="middle">DECISION</text>
+          <text x="384" y="396" fill="#53657A" font-family="'Geist Mono', ui-monospace, monospace" font-size="8" text-anchor="middle">parent chunk</text>
+        </g>
+
+        <g aria-label="Recipients section">
+          <rect x="300" y="548" width="168" height="48" rx="6" fill="#F1F7FD"/>
+          <rect x="300" y="548" width="168" height="48" rx="6" fill="#FFFFFF" stroke="#B8D2E8" stroke-width="1"/>
+          <rect x="312" y="556" width="32" height="12" rx="2" fill="transparent" stroke="rgba(83,101,122,0.40)" stroke-width="0.8"/>
+          <text x="328" y="565" fill="#53657A" font-family="'Geist Mono', ui-monospace, monospace" font-size="8" font-weight="600" text-anchor="middle">SEC</text>
+          <text x="384" y="580" fill="#1D2A44" font-family="'Geist', system-ui, sans-serif" font-size="12" font-weight="600" text-anchor="middle">RECIPIENTS</text>
+        </g>
+
+        <g aria-label="Signature section">
+          <rect x="300" y="644" width="168" height="48" rx="6" fill="#F1F7FD"/>
+          <rect x="300" y="644" width="168" height="48" rx="6" fill="#FFFFFF" stroke="#B8D2E8" stroke-width="1"/>
+          <rect x="312" y="652" width="32" height="12" rx="2" fill="transparent" stroke="rgba(83,101,122,0.40)" stroke-width="0.8"/>
+          <text x="328" y="661" fill="#53657A" font-family="'Geist Mono', ui-monospace, monospace" font-size="8" font-weight="600" text-anchor="middle">SEC</text>
+          <text x="384" y="676" fill="#1D2A44" font-family="'Geist', system-ui, sans-serif" font-size="12" font-weight="600" text-anchor="middle">SIGNATURE</text>
+        </g>
+
+        <!-- Level 2: preamble and decision children. -->
+        <g aria-label="Legal basis one">
+          <rect x="548" y="156" width="180" height="40" rx="6" fill="#F1F7FD"/>
+          <rect x="548" y="156" width="180" height="40" rx="6" fill="#FFFFFF" stroke="#B8D2E8" stroke-width="0.8"/>
+          <text x="568" y="180" fill="#53657A" font-family="'Geist Mono', ui-monospace, monospace" font-size="8" font-weight="600">01</text>
+          <text x="638" y="180" fill="#1D2A44" font-family="'Geist', system-ui, sans-serif" font-size="12" font-weight="600" text-anchor="middle">LEGAL_BASIS</text>
+        </g>
+
+        <g aria-label="Legal basis two">
+          <rect x="548" y="204" width="180" height="40" rx="6" fill="#F1F7FD"/>
+          <rect x="548" y="204" width="180" height="40" rx="6" fill="#FFFFFF" stroke="#B8D2E8" stroke-width="0.8"/>
+          <text x="568" y="228" fill="#53657A" font-family="'Geist Mono', ui-monospace, monospace" font-size="8" font-weight="600">02</text>
+          <text x="638" y="228" fill="#1D2A44" font-family="'Geist', system-ui, sans-serif" font-size="12" font-weight="600" text-anchor="middle">LEGAL_BASIS</text>
+        </g>
+
+        <g aria-label="Legal basis three">
+          <rect x="548" y="252" width="180" height="40" rx="6" fill="#F1F7FD"/>
+          <rect x="548" y="252" width="180" height="40" rx="6" fill="#FFFFFF" stroke="#B8D2E8" stroke-width="0.8"/>
+          <text x="568" y="276" fill="#53657A" font-family="'Geist Mono', ui-monospace, monospace" font-size="8" font-weight="600">03</text>
+          <text x="638" y="276" fill="#1D2A44" font-family="'Geist', system-ui, sans-serif" font-size="12" font-weight="600" text-anchor="middle">LEGAL_BASIS</text>
+        </g>
+
+        <g aria-label="Article one parent chunk">
+          <rect x="548" y="304" width="180" height="48" rx="6" fill="#F1F7FD"/>
+          <rect x="548" y="304" width="180" height="48" rx="6" fill="rgba(55,78,158,0.08)" stroke="#374E9E" stroke-width="1.2"/>
+          <rect x="560" y="312" width="32" height="12" rx="2" fill="transparent" stroke="rgba(55,78,158,0.40)" stroke-width="0.8"/>
+          <text x="576" y="321" fill="#374E9E" font-family="'Geist Mono', ui-monospace, monospace" font-size="8" font-weight="600" text-anchor="middle">ART</text>
+          <text x="638" y="332" fill="#1D2A44" font-family="'Geist', system-ui, sans-serif" font-size="12" font-weight="600" text-anchor="middle">ARTICLE 1</text>
+          <text x="638" y="344" fill="#53657A" font-family="'Geist Mono', ui-monospace, monospace" font-size="8" text-anchor="middle">parent chunk</text>
+        </g>
+
+        <g aria-label="Article two child chunk">
+          <rect x="548" y="356" width="180" height="40" rx="6" fill="#F1F7FD"/>
+          <rect x="548" y="356" width="180" height="40" rx="6" fill="#FFFFFF" stroke="#B8D2E8" stroke-width="0.8"/>
+          <text x="568" y="380" fill="#53657A" font-family="'Geist Mono', ui-monospace, monospace" font-size="8" font-weight="600">ART</text>
+          <text x="638" y="380" fill="#1D2A44" font-family="'Geist', system-ui, sans-serif" font-size="12" font-weight="600" text-anchor="middle">ARTICLE 2</text>
+        </g>
+
+        <g aria-label="Article three child chunk">
+          <rect x="548" y="452" width="180" height="48" rx="6" fill="#F1F7FD"/>
+          <rect x="548" y="452" width="180" height="48" rx="6" fill="#FFFFFF" stroke="#B8D2E8" stroke-width="0.8"/>
+          <text x="568" y="480" fill="#53657A" font-family="'Geist Mono', ui-monospace, monospace" font-size="8" font-weight="600">ART</text>
+          <text x="638" y="480" fill="#1D2A44" font-family="'Geist', system-ui, sans-serif" font-size="12" font-weight="600" text-anchor="middle">ARTICLE 3</text>
+        </g>
+
+        <!-- Level 3: Article 1 atomic units. -->
+        <g aria-label="Article one paragraph atomic chunk">
+          <rect x="808" y="308" width="160" height="40" rx="6" fill="#F1F7FD"/>
+          <rect x="808" y="308" width="160" height="40" rx="6" fill="#FFFFFF" stroke="#B8D2E8" stroke-width="0.8"/>
+          <text x="828" y="332" fill="#53657A" font-family="'Geist Mono', ui-monospace, monospace" font-size="8" font-weight="600">TXT</text>
+          <text x="888" y="332" fill="#1D2A44" font-family="'Geist', system-ui, sans-serif" font-size="12" font-weight="600" text-anchor="middle">PARAGRAPH</text>
+        </g>
+
+        <g aria-label="Article one table atomic chunk">
+          <rect x="808" y="356" width="160" height="40" rx="6" fill="#F1F7FD"/>
+          <rect x="808" y="356" width="160" height="40" rx="6" fill="#FFFFFF" stroke="#B8D2E8" stroke-width="0.8"/>
+          <text x="828" y="380" fill="#53657A" font-family="'Geist Mono', ui-monospace, monospace" font-size="8" font-weight="600">TAB</text>
+          <text x="888" y="380" fill="#1D2A44" font-family="'Geist', system-ui, sans-serif" font-size="12" font-weight="600" text-anchor="middle">TABLE</text>
+        </g>
+
+        <g aria-label="Article one paragraph atomic chunk two">
+          <rect x="808" y="404" width="160" height="40" rx="6" fill="#F1F7FD"/>
+          <rect x="808" y="404" width="160" height="40" rx="6" fill="#FFFFFF" stroke="#B8D2E8" stroke-width="0.8"/>
+          <text x="828" y="428" fill="#53657A" font-family="'Geist Mono', ui-monospace, monospace" font-size="8" font-weight="600">TXT</text>
+          <text x="888" y="428" fill="#1D2A44" font-family="'Geist', system-ui, sans-serif" font-size="12" font-weight="600" text-anchor="middle">PARAGRAPH</text>
+        </g>
+
+        <!-- Legend strip. -->
+        <line x1="72" y1="724" x2="1128" y2="724" stroke="rgba(55,78,158,0.18)" stroke-width="0.8"/>
+        <text x="72" y="748" fill="#53657A" font-family="'Geist Mono', ui-monospace, monospace" font-size="8" font-weight="500" letter-spacing="0.14em">LEGEND</text>
+        <rect x="168" y="736" width="28" height="12" rx="2" fill="rgba(55,78,158,0.08)" stroke="#374E9E" stroke-width="1"/>
+        <text x="208" y="748" fill="#53657A" font-family="'Geist Mono', ui-monospace, monospace" font-size="8">root / emphasized parent</text>
+        <rect x="432" y="736" width="28" height="12" rx="2" fill="#FFFFFF" stroke="#B8D2E8" stroke-width="1"/>
+        <text x="472" y="748" fill="#53657A" font-family="'Geist Mono', ui-monospace, monospace" font-size="8">section or child chunk</text>
+        <line x1="692" y1="742" x2="744" y2="742" stroke="#53657A" stroke-width="1"/>
+        <text x="764" y="748" fill="#53657A" font-family="'Geist Mono', ui-monospace, monospace" font-size="8">parent-child edge</text>
+      </svg>
+    </div>
+  </main>
+</body>
+</html>
