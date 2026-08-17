@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import re
 import sys
 import traceback
 from functools import lru_cache
@@ -20,24 +21,16 @@ import hybrid_vec_knowgraph as rag
 
 HOST = os.getenv("APP_HOST", "127.0.0.1")
 PORT = int(os.getenv("APP_PORT", "8000"))
-TOP_K = int(os.getenv("APP_TOP_K", "5"))
+TOP_K = int(os.getenv("APP_TOP_K", "10"))
 MAX_NEW_TOKENS = int(os.getenv("APP_MAX_NEW_TOKENS", "512"))
 LLM_MODEL_ID = os.getenv("HF_MODEL_ID", rag.MODEL_ID)
+NO_ANSWER_MESSAGE = "Không tìm thấy tài liệu phù hợp để trả lời câu hỏi."
 
 logging.basicConfig(
     level=os.getenv("APP_LOG_LEVEL", "INFO").upper(),
     format="%(asctime)s | %(levelname)s | %(message)s",
 )
 LOGGER = logging.getLogger("qa_app")
-
-
-def get_confidence_level(question: str) -> str:
-    route, _, _ = rag.route_questions(rag.driver, question)
-    if route == "PERSON_EVENT":
-        return "STRICT"
-    if route in {"PERSON_ONLY", "EVENT_ONLY"}:
-        return "RELAXED"
-    return "VECTOR_ONLY"
 
 
 @lru_cache(maxsize=1)
@@ -65,30 +58,106 @@ def retrieve_hits(question: str):
     else:
         hits = rag.qdrant.query_points(
             collection_name=rag.COLLECTION_NAME,
-            query_vector=query_vector,
+            query=query_vector,
             limit=TOP_K,
         )
     return rag.sort_hits_in_order(hits)
 
 
+def make_final_answer_prompt(question: str, context: str) -> str:
+    return f"""
+Bạn là trợ lý hỏi đáp tài liệu hành chính tiếng Việt.
+
+Nhiệm vụ: trả lời câu hỏi của người dùng bằng một câu trả lời cuối cùng, đúng và đầy đủ nhất.
+  
+Quy tắc bắt buộc:
+- Chỉ sử dụng thông tin có trong CONTEXT.
+- Không suy đoán, không thêm kiến thức ngoài tài liệu.
+- Tổng hợp các bằng chứng liên quan thành một câu trả lời mạch lạc.
+- Nếu câu hỏi hỏi văn bản/quyết định nào ban hành một quy chế, ưu tiên các trường so_quyet_dinh, ngay_ban_hanh và tom_tat_tai_lieu trong CONTEXT.
+- Nếu đoạn OCR có số quyết định mâu thuẫn với so_quyet_dinh trong metadata, ưu tiên so_quyet_dinh vì OCR có thể nhiễu.
+- Không liệt kê nhiều phương án trả lời.
+- Không hiển thị mã nguồn tham chiếu như [E1], [E2], doc_id, chunk, file_url.
+- Không viết lời dẫn như "Dựa trên context" hoặc "Câu trả lời là".
+- Nếu CONTEXT không đủ dữ liệu để trả lời, chỉ trả lời: "{NO_ANSWER_MESSAGE}"
+
+CONTEXT:
+{context}
+
+CÂU HỎI:
+{question}
+
+CÂU TRẢ LỜI CUỐI CÙNG:
+"""
+
+
+def clean_final_answer(answer: str) -> str:
+    answer = (answer or "").strip()
+    if not answer:
+        return ""
+
+    stop_markers = (
+        "\nCONTEXT:",
+        "\nQUESTION:",
+        "\nCÂU HỎI:",
+        "\nYÊU CẦU TRẢ LỜI:",
+    )
+    for marker in stop_markers:
+        idx = answer.upper().find(marker.upper())
+        if idx != -1:
+            answer = answer[:idx].strip()
+
+    answer = re.sub(r"(?im)^\s*(assistant|user|system)\s*:\s*", "", answer)
+    answer = re.sub(r"(?im)^\s*câu trả lời(?: cuối cùng)?\s*:\s*", "", answer)
+    answer = re.sub(r"\s*\[E\d+\]\s*", " ", answer)
+    answer = re.sub(r"(?im)^\s*(doc_id|doc_no|chunk_index|file_url|nguồn)\s*:.*$", "", answer)
+
+    lines = []
+    seen = set()
+    for raw_line in answer.splitlines():
+        line = re.sub(r"\s+", " ", raw_line).strip()
+        if not line:
+            continue
+        key = line.casefold()
+        if key in seen:
+            continue
+        seen.add(key)
+        lines.append(line)
+
+    answer = "\n".join(lines)
+    answer = re.sub(r"\n{3,}", "\n\n", answer).strip(" :-\n\t")
+    return answer
+
+
+def collect_file_urls(hits) -> list[str]:
+    file_urls = []
+    seen = set()
+    for hit in hits:
+        payload = getattr(hit, "payload", {}) or {}
+        file_url = (payload.get("file_url") or "").strip()
+        if not file_url or file_url in seen:
+            continue
+        seen.add(file_url)
+        file_urls.append(file_url)
+    return file_urls
+
+
 def answer_question(question: str) -> dict:
     question = question.strip()
     if not question:
-        raise ValueError("Vui long nhap cau hoi.")
+        raise ValueError("Vui lòng nhập câu hỏi.")
 
-    confidence_level = get_confidence_level(question)
     hits = retrieve_hits(question)
-    evidence = serialize_evidence(hits)
 
     if not hits:
         return {
-            "answer": "Khong tim thay tai lieu phu hop.",
-            "confidence_level": confidence_level,
-            "evidence": evidence,
+            "answer": NO_ANSWER_MESSAGE,
+            "file_urls": [],
         }
 
-    context = rag.build_context_from_payloads(hits, top_k=TOP_K)
-    prompt = rag.make_prompt(question, context)
+    file_urls = collect_file_urls(hits)
+    context = rag.build_context_from_payloads(hits, top_k=TOP_K, query=question)
+    prompt = make_final_answer_prompt(question, context)
     tokenizer, model = get_llm()
     decoded = rag.chat_generate(
         tokenizer,
@@ -96,34 +165,15 @@ def answer_question(question: str) -> dict:
         prompt,
         max_new_tokens=MAX_NEW_TOKENS,
     )
-    answer = rag.extract_answer(decoded, prompt).strip()
+    answer = clean_final_answer(rag.extract_answer(decoded, prompt))
 
     if torch.cuda.is_available():
         torch.cuda.empty_cache()
 
     return {
-        "answer": answer or "Khong tim thay tai lieu phu hop.",
-        "confidence_level": confidence_level,
-        "evidence": evidence,
+        "answer": answer or NO_ANSWER_MESSAGE,
+        "file_urls": file_urls,
     }
-
-
-def serialize_evidence(hits) -> list[dict]:
-    evidence = []
-    for idx, hit in enumerate(hits[:TOP_K], start=1):
-        payload = hit.payload or {}
-        text = (payload.get("chunk_text") or "").strip()
-        evidence.append(
-            {
-                "rank": idx,
-                "score": round(float(getattr(hit, "score", 0.0)), 4),
-                "doc_id": payload.get("doc_id") or payload.get("doc_no") or "N/A",
-                "chunk_index": payload.get("chunk_index", "N/A"),
-                "file_url": payload.get("file_url", ""),
-                "preview": text[:600],
-            }
-        )
-    return evidence
 
 
 HTML_PAGE = """<!doctype html>
@@ -182,10 +232,8 @@ HTML_PAGE = """<!doctype html>
       padding: 24px 0 40px;
     }
     .layout {
-      display: grid;
-      grid-template-columns: minmax(0, 1.05fr) minmax(340px, 0.95fr);
-      gap: 18px;
-      align-items: start;
+      max-width: 820px;
+      margin: 0 auto;
     }
     .panel {
       background: var(--panel);
@@ -246,69 +294,41 @@ HTML_PAGE = """<!doctype html>
       margin-top: 18px;
       padding: 18px;
     }
-    .answer h2,
-    .evidence h2 {
+    .answer h2 {
       margin: 0 0 12px;
       font-size: 18px;
-    }
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      min-height: 26px;
-      padding: 0 9px;
-      border-radius: 999px;
-      background: #e7f5f2;
-      color: #115e59;
-      font-size: 12px;
-      font-weight: 700;
-      margin-bottom: 12px;
     }
     .answer-text {
       white-space: pre-wrap;
       line-height: 1.6;
     }
+    .file-download {
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px solid var(--line);
+    }
+    .file-download h3 {
+      margin: 0 0 10px;
+      font-size: 15px;
+    }
+    .file-links {
+      display: grid;
+      gap: 8px;
+    }
+    .file-link {
+      display: block;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfe;
+      line-height: 1.4;
+    }
     .error {
       color: var(--danger);
       white-space: pre-wrap;
     }
-    .evidence {
-      padding: 18px;
-      position: sticky;
-      top: 16px;
-    }
-    .evidence-list {
-      display: grid;
-      gap: 12px;
-    }
-    .source {
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 12px;
-      background: #fbfcfe;
-    }
-    .source-head {
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-      font-size: 13px;
-      margin-bottom: 8px;
-      color: var(--muted);
-    }
-    .source strong {
-      color: var(--text);
-      overflow-wrap: anywhere;
-    }
-    .preview {
-      margin: 8px 0 0;
-      color: #334155;
-      font-size: 14px;
-      line-height: 1.45;
-      white-space: pre-wrap;
-    }
     a { color: var(--accent-strong); overflow-wrap: anywhere; }
     @media (max-width: 900px) {
-      .layout { grid-template-columns: 1fr; }
-      .evidence { position: static; }
       .topbar { align-items: flex-start; flex-direction: column; padding: 14px 0; }
       .meta { white-space: normal; }
     }
@@ -334,16 +354,13 @@ HTML_PAGE = """<!doctype html>
         </form>
         <section class="panel answer" aria-live="polite">
           <h2>Câu trả lời</h2>
-          <div id="confidence"></div>
           <div id="answer" class="answer-text">Chưa có câu hỏi.</div>
+          <div id="file-download" class="file-download" hidden>
+            <h3>File_URL</h3>
+            <div id="file-links" class="file-links"></div>
+          </div>
         </section>
       </section>
-      <aside class="panel evidence">
-        <h2>Nguồn tham chiếu</h2>
-        <div id="evidence" class="evidence-list">
-          <div class="status">Nguồn sẽ hiển thị sau khi truy vấn.</div>
-        </div>
-      </aside>
     </div>
   </main>
   <script>
@@ -352,38 +369,26 @@ HTML_PAGE = """<!doctype html>
     const submit = document.getElementById("submit");
     const statusEl = document.getElementById("status");
     const answerEl = document.getElementById("answer");
-    const confidenceEl = document.getElementById("confidence");
-    const evidenceEl = document.getElementById("evidence");
+    const fileDownloadEl = document.getElementById("file-download");
+    const fileLinksEl = document.getElementById("file-links");
 
-    function escapeHtml(value) {
-      return String(value ?? "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-    }
-
-    function renderEvidence(items) {
-      if (!items || !items.length) {
-        evidenceEl.innerHTML = '<div class="status">Không có nguồn phù hợp.</div>';
+    function renderFileUrls(fileUrls) {
+      fileLinksEl.replaceChildren();
+      if (!fileUrls || !fileUrls.length) {
+        fileDownloadEl.hidden = true;
         return;
       }
-      evidenceEl.innerHTML = items.map((item) => {
-        const source = item.file_url
-          ? `<a href="${escapeHtml(item.file_url)}" target="_blank" rel="noreferrer">Mở tài liệu</a>`
-          : "Không có URL";
-        return `
-          <article class="source">
-            <div class="source-head">
-              <strong>[E${item.rank}] ${escapeHtml(item.doc_id)}</strong>
-              <span>score ${escapeHtml(item.score)} | chunk ${escapeHtml(item.chunk_index)}</span>
-            </div>
-            <div>${source}</div>
-            <p class="preview">${escapeHtml(item.preview)}</p>
-          </article>
-        `;
-      }).join("");
+
+      fileUrls.forEach((fileUrl, index) => {
+        const link = document.createElement("a");
+        link.className = "file-link";
+        link.href = fileUrl;
+        link.target = "_blank";
+        link.rel = "noreferrer";
+        link.textContent = `Tải file ${index + 1}: ${fileUrl}`;
+        fileLinksEl.appendChild(link);
+      });
+      fileDownloadEl.hidden = false;
     }
 
     form.addEventListener("submit", async (event) => {
@@ -395,8 +400,7 @@ HTML_PAGE = """<!doctype html>
       statusEl.textContent = "Đang truy vấn...";
       answerEl.className = "answer-text";
       answerEl.textContent = "Đang tìm kiếm bằng chứng và sinh câu trả lời.";
-      confidenceEl.innerHTML = "";
-      evidenceEl.innerHTML = '<div class="status">Đang tải nguồn...</div>';
+      renderFileUrls([]);
 
       try {
         const response = await fetch("/api/ask", {
@@ -407,14 +411,13 @@ HTML_PAGE = """<!doctype html>
         const data = await response.json();
         if (!response.ok) throw new Error(data.error || "Truy vấn thất bại.");
 
-        confidenceEl.innerHTML = `<span class="badge">${escapeHtml(data.confidence_level)}</span>`;
         answerEl.textContent = data.answer || "Không có câu trả lời.";
-        renderEvidence(data.evidence);
+        renderFileUrls(data.file_urls);
         statusEl.textContent = "Hoàn tất.";
       } catch (error) {
         answerEl.className = "error";
         answerEl.textContent = error.message;
-        renderEvidence([]);
+        renderFileUrls([]);
         statusEl.textContent = "Có lỗi.";
       } finally {
         submit.disabled = false;

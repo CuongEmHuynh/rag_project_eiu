@@ -15,7 +15,7 @@ SERVERQDRANT="http://10.10.49.220:6333"
 COLLECTION_NAME="rag_document_v2"
 MODEL_EMBEDDING="bkai-foundation-models/vietnamese-bi-encoder"
 OCR_DIR = Path("./data/file_contents")
-CSV_PATH = "./data/query_data2.csv"   
+CSV_PATH = "./data/query_data2.csv"    
     
 SECTION_RE = re.compile(
     r"(?m)^(?:Chương\s+[IVXLC]+|Mục\s+\d+|Điều\s+\d+)\s*[:\.]?",
@@ -263,10 +263,11 @@ def creat_collection(client):
 
 def embedding_search(query: str, top_k: int = 5):
     flt = Filter(
-        must=[FieldCondition(key="doc_id", match=MatchAny(any=['ef0359f7-e2a8-b9fc-4844-3a18b9689c78']))]
+       
     )
+    qdrant= QdrantClient(url=SERVERQDRANT)
     query_vector = model.encode(query, normalize_embeddings=True)
-    search_result = client.query_points(
+    search_result = qdrant.query_points(
         collection_name=COLLECTION_NAME,
         query=query_vector,
         query_filter=flt,
@@ -276,20 +277,19 @@ def embedding_search(query: str, top_k: int = 5):
 
 
 if __name__ == "__main__":
-    creat_collection(client)
+    #creat_collection(client)
     # # Index dữ liệu
-    load_and_index(CSV_PATH)
+    # load_and_index(CSV_PATH)
     print("Indexing completed.")
 
     # # Test search
    
-    # results = embedding_search(
-    #     "Các quyết định của sinh viên Phạm Văn Giang",
-    #     top_k=5
+    results = embedding_search(
+        "Quyết định quản lý và cấp phát văn bằng, chứng chỉ của Trường ĐHQTMD",
+        top_k=5
         
-    # )
-
-    # for r in results:
-    #     print("-" * 80)
-    #     print("Score:", round(r.score, 4))
-    #     print("Điều:", r.payload["chunk_text"])
+    )
+    for r in results:
+        print("-" * 80)
+        print("Score:", round(r.score, 4))
+        print("Điều:", r.payload["chunk_text"])

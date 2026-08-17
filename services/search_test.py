@@ -8,7 +8,7 @@ from openai import OpenAI
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import torch
 
-SERVERQDRANT="http://222.255.214.30:6333"
+SERVERQDRANT="http://localhost:6333"
 COLLECTION_NAME="rag_document"
 MODEL_EMBEDDING="bkai-foundation-models/vietnamese-bi-encoder"
 

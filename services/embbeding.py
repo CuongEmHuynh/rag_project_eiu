@@ -10,9 +10,10 @@ from sentence_transformers import SentenceTransformer
 
 
 # Qdrant Config
-SERVERQDRANT="http://222.255.214.30:6333"
+SERVERQDRANT="http://localhost:6333"
 COLLECTION_NAME="rag_document"
-MODEL_EMBEDDING="bkai-foundation-models/vietnamese-bi-encoder"
+# MODEL_EMBEDDING="bkai-foundation-models/vietnamese-bi-encoder"
+MODEL_EMBEDDING="AITeamVN/Vietnamese_Embedding"
 
 
 client= QdrantClient(url=SERVERQDRANT)

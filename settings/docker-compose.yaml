@@ -36,7 +36,6 @@ services:
     ports:
       - "7474:7474"   # Browser UI
       - "7687:7687"   # Bolt protocol
-
     environment:
       NEO4J_AUTH: neo4j/CjeZD6XqRXhg
       # Memory config

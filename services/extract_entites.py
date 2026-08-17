@@ -79,7 +79,7 @@ Văn bản:
 MODEL_ID = os.getenv("HF_MODEL_ID", "Qwen/Qwen2.5-1.5B-Instruct")
 MAX_INPUT_TOKENS = int(os.getenv("MAX_INPUT_TOKENS", "512"))
 MAX_NEW_TOKENS = int(os.getenv("MAX_NEW_TOKENS", "256"))
-NEO4J_URI = "bolt://10.10.49.220:7687"
+NEO4J_URI = "bolt://localhost:7687"
 NEO4J_USER = "neo4j"
 NEO4J_PASSWORD = "CjeZD6XqRXhg"
 openai_api_key = os.getenv('OPENAI_API_KEY')

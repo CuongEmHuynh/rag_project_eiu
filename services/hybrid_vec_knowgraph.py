@@ -10,9 +10,9 @@ from transformers import AutoTokenizer, AutoModelForCausalLM
 from functools import lru_cache
 
 # Neo4j connection setup
-NEO4J_URI = "bolt://222.255.214.30:7687"
+NEO4J_URI = "bolt://localhost:7687"
 NEO4J_USER = "neo4j"
-NEO4J_PASSWORD = "StrongPassword123!"
+NEO4J_PASSWORD = "CjeZD6XqRXhg"
 driver = GraphDatabase.driver(
     NEO4J_URI,
     auth=(NEO4J_USER, NEO4J_PASSWORD)
@@ -22,7 +22,7 @@ OUT_PUT_EVULATION_LLM = "out\\result_evulationLLM"
 os.makedirs(OUT_PUT_EVULATION_LLM, exist_ok=True)
 
 # Qdrant config 
-SERVERQDRANT="http://222.255.214.30:6333"
+SERVERQDRANT="http://localhost:6333"
 COLLECTION_NAME="rag_document_v2"
 MODEL_EMBEDDING="bkai-foundation-models/vietnamese-bi-encoder"
 qdrant= QdrantClient(url=SERVERQDRANT)
@@ -152,7 +152,7 @@ def graph_retrieve_documents(driver, question: str):
 # ===== Qdrant Vector Search =====
 def vector_search_filtered(qdrant, collection, query_vector, allowed_doc_ids, limit=5):
     flt = Filter(
-        must=[FieldCondition(key="doc_id", match=MatchAny(any=allowed_doc_ids))]
+         must=[FieldCondition(key="doc_id", match=MatchAny(any=allowed_doc_ids))]
     )
     return qdrant.query_points(
         collection_name=collection,
@@ -183,11 +183,11 @@ def hybrid_retrieve(
             qdrant, collection, qvec, allowed_doc_ids, limit=top_k
         )
     else:
-        hits = qdrant.search(
+        hits = qdrant.query_points(
             collection_name=collection,
-            query_vector=qvec,
+            query=qvec,
             limit=top_k
-        )
+        ).points
     return hits
 
 
@@ -244,7 +244,7 @@ CONFIDENCE_NOTE = {
     "ASSISTED": "Kết luận dựa trên xếp hạng ngữ nghĩa.",
     "VECTOR_ONLY": "Kết luận chỉ mang tính tham khảo."
 }
-MODEL_ID = os.getenv("HF_MODEL_ID", "Qwen/Qwen2.5-1.5B-Instruct")
+MODEL_ID = os.getenv("HF_MODEL_ID", "AITeamVN/Vi-Qwen2-3B-RAG")
 
 def select_evidence(hits, min_score=0.3, max_docs=5):
     """
@@ -378,9 +378,9 @@ MODELS = [
     # Vietnamese
     # "phamhai/Llama-3.2-3B-Instruct-Frog",
     # "vilm/vinallama-2.7b-chat",
-    "arcee-ai/Arcee-VyLinh",
+    # "arcee-ai/Arcee-VyLinh",
     "AITeamVN/Vi-Qwen2-3B-RAG",
-    "ricepaper/vi-gemma-2b-RAG",
+    # "ricepaper/vi-gemma-2b-RAG",
     # "vinai/PhoGPT-4B-Chat",
     # "Viet-Mistral/Vistral-7B-Chat"
     
@@ -406,26 +406,64 @@ DEVICE = check_device()
 
 
 
-def build_context_from_payloads(scored_points, top_k=5):
+def _get_payload(scored_point):
+    return scored_point.get("payload", {}) if isinstance(scored_point, dict) else (scored_point.payload or {})
+
+
+def _compact_context_text(text, max_chars=900):
+    text = normalize_text(text or "")
+    if len(text) <= max_chars:
+        return text
+    return text[:max_chars].rsplit(" ", 1)[0].strip() + "..."
+
+
+def build_context_from_payloads(scored_points, top_k=5, max_chars=3500, query=None):
     blocks = []
-    for i, sp in enumerate(scored_points[:top_k], start=1):
-        p = sp["payload"] if isinstance(sp, dict) else sp.payload
-        blocks.append(
-            f"[E{i}] doc_no: {p.get('doc_no')}\n"
-            f"date: {p.get('date')}\n"
-            f"summary: {p.get('summary')}\n"
-            f"chunk_index: {p.get('chunk_index')}\n"
-            f"file_url: {p.get('file_url')}\n"
-            f"text:\n{p.get('chunk_text')}\n"
+    total = 0
+    seen_text = set()
+
+    for sp in scored_points[:top_k]:
+        p = _get_payload(sp)
+        text = _compact_context_text(p.get("chunk_text"))
+        if not text:
+            continue
+
+        text_key = text.casefold()[:300]
+        if text_key in seen_text:
+            continue
+        seen_text.add(text_key)
+
+        block = (
+            f"[E{len(blocks) + 1}]\n"
+            f"so_quyet_dinh: {p.get('doc_no') or 'N/A'}\n"
+            f"ngay_ban_hanh: {p.get('date') or 'N/A'}\n"
+            f"tom_tat_tai_lieu: {p.get('summary') or 'N/A'}\n"
+            f"doan_van_ban_ocr:\n{text}\n"
         )
+
+        if total + len(block) > max_chars:
+            break
+
+        blocks.append(block)
+        total += len(block)
+
     return "\n---\n".join(blocks)
 
 
 def make_prompt(query, context):
     return f"""
-Bạn là trợ lý QA cho văn bản hành chính tiếng Việt (nguồn OCR).
-CHỈ được dùng thông tin trong CONTEXT. Không bịa.
-Khi trả lời, phải trích dẫn bằng [E1], [E2]... đúng evidence.
+Bạn là trợ lý QA cho văn bản hành chính tiếng Việt từ dữ liệu OCR.
+
+Nhiệm vụ: trả lời đúng trọng tâm câu hỏi bằng một câu trả lời cuối cùng.
+
+Quy tắc:
+- Chỉ dùng thông tin trong CONTEXT.
+- Không suy đoán và không dùng kiến thức bên ngoài.
+- Nếu câu hỏi hỏi văn bản/quyết định nào ban hành một quy chế, ưu tiên các trường so_quyet_dinh, ngay_ban_hanh và tom_tat_tai_lieu.
+- Nếu doan_van_ban_ocr có số quyết định mâu thuẫn với so_quyet_dinh trong metadata, ưu tiên so_quyet_dinh vì OCR có thể nhiễu.
+- Không chọn các số quyết định nằm trong biểu mẫu, phụ lục hoặc ví dụ nếu chúng không trực tiếp là văn bản ban hành quy chế được hỏi.
+- Không hiển thị mã evidence [E1], doc_id, chunk_index hoặc file_url trong câu trả lời.
+- Nếu CONTEXT không đủ dữ liệu để trả lời, chỉ trả lời: "Không đủ dữ liệu trong context".
 
 CONTEXT:
 {context}
@@ -433,11 +471,7 @@ CONTEXT:
 QUESTION:
 {query}
 
-YÊU CẦU TRẢ LỜI:
-1) Trả lời ngắn gọn, đúng trọng tâm.
-2) Nếu hỏi về điều khoản, hãy trích nguyên ý theo OCR và nêu "Điều x".
-3) Luôn kèm trích dẫn [E?] sau mỗi ý quan trọng.
-4) Nếu CONTEXT không đủ để trả lời, nói rõ "Không đủ dữ liệu trong context".
+CÂU TRẢ LỜI:
 """
 
 def load_model(model_id):
@@ -509,7 +543,7 @@ def extract_answer(decoded, prompt):
 if __name__=="__main__":
     print("Hybriad Vec Knowgraph Service")
 
-    question = "Các quyết định của sinh viên Tô Thị Ngọc Thiện"
+    question = "Quyết định quản lý và cấp phát văn bằng, chứng chỉ của Trường ĐHQTMD"
     hits = hybrid_retrieve(
         question,
         driver=driver,
@@ -520,7 +554,7 @@ if __name__=="__main__":
     )
     hits = sort_hits_in_order(hits)
     context = build_context_from_payloads(hits)
-    QUERY = "Các quyết định của sinh viên Tô Thị Ngọc Thiện"
+    QUERY = "Quyết định quản lý và cấp phát văn bằng, chứng chỉ của Trường ĐHQTMD"
     prompt = make_prompt(QUERY, context)
     for mid in MODELS:
         print("\n" + "="*90)
