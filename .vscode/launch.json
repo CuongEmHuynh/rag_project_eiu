@@ -1,0 +1,50 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug embedding_v2 - Full model",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "services.embedding_v2",
+            "python": "${workspaceFolder}/env/bin/python",
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": [
+                "--input",
+                "${workspaceFolder}/data/file_contents",
+                "--documents-csv",
+                "${workspaceFolder}/data/documents.csv",
+                "--output-dir",
+                "${workspaceFolder}/outputs/embedding_v2_debug",
+                "--verbose"
+            ],
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            }
+        },
+        {
+            "name": "Debug embedding_v2 - Offline chunking",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "services.embedding_v2",
+            "python": "${workspaceFolder}/env/bin/python",
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": [
+                "--input",
+                "${workspaceFolder}/data/file_contents",
+                "--documents-csv",
+                "${workspaceFolder}/data/documents.csv",
+                "--output-dir",
+                "${workspaceFolder}/outputs/embedding_v2_debug",
+                "--offline-tokenizer",
+                "--verbose"
+            ],
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            }
+        }
+    ]
+}

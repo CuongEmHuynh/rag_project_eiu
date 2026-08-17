@@ -1,0 +1,8 @@
+# Core SAHC-v2 (HTML table parsing)
+beautifulsoup4>=4.12,<5
+
+# Production embedding/Qdrant integration. Unit tests inject a tokenizer and do
+# not require these packages or a live Qdrant server.
+sentence-transformers>=3.0
+qdrant-client>=1.9
+
